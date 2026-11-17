@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Entwürfe</title>
+<style>
+:root{
+  --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
+  --line:#e4e1d8; --accent:#c4633f; --accent-soft:#f6e6de; --good:#4f7a4a; --good-soft:#e5eee2;
+  --warn:#a8741a; --warn-soft:#f5ecd9; --bad:#b0412e; --bad-soft:#f6e1dc;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,ui-serif,serif;
+  --sans: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a;
+  --warn:#d8a650; --warn-soft:#3a3122; --bad:#e3826f; --bad-soft:#3d2723;
+}}
+:root[data-theme="dark"]{
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a;
+  --warn:#d8a650; --warn-soft:#3a3122; --bad:#e3826f; --bad-soft:#3d2723;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:-.01em}
+small,.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* Umschalter */
+.switch{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.switch-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.switch b{font-weight:600;margin-right:6px;font-size:13px;color:var(--muted)}
+.switch button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:6px 12px;border-radius:999px;cursor:pointer}
+.switch button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.switch .theme{margin-left:auto}
+.variant{display:none}.variant.on{display:block}
+
+/* gemeinsame Bausteine */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.acc{background:var(--accent-soft);color:var(--accent)}
+.src{font-size:12px;color:var(--faint)}
+.spark{display:block;width:100%;height:56px}
+.bar{fill:var(--line)} .bar.cur{fill:var(--accent)}
+ul.clean{list-style:none;margin:0;padding:0}
+
+/* ===== A: Briefing ===== */
+.a{max-width:760px;margin:0 auto;padding:48px 16px 80px}
+.a .date{color:var(--muted);font-size:14px}
+.a h1{font-size:36px;margin:6px 0 20px}
+.a .brief{font-family:var(--serif);font-size:19px;line-height:1.6}
+.a .brief p{margin:0 0 14px}
+.a .brief mark{background:var(--accent-soft);color:inherit;padding:0 3px;border-radius:4px}
+.a h2{font-size:20px;margin:40px 0 12px}
+.a .todo li{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line);align-items:flex-start}
+.a .todo li:last-child{border-bottom:1px solid var(--line)}
+.a .todo .n{font-family:var(--serif);color:var(--accent);font-size:18px;width:20px;flex:none}
+.a .todo .t{flex:1}.a .todo .t b{font-weight:600}
+.a .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.a .kpis>div{background:var(--surface);padding:14px 16px}
+.a .kpis .v{font-family:var(--serif);font-size:24px}
+.a .ask{margin-top:40px;display:flex;gap:8px;padding:10px 10px 10px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--line);align-items:center}
+.a .ask input{flex:1;border:0;background:transparent;font:inherit;color:var(--text);outline:none;min-width:0}
+.a .ask button{border:0;background:var(--accent);color:#fff;border-radius:999px;width:34px;height:34px;font-size:16px;cursor:pointer;flex:none}
+@media (max-width:640px){.a .kpis{grid-template-columns:repeat(2,1fr)}.a h1{font-size:28px}}
+
+/* ===== B: Kacheln ===== */
+.b{max-width:1180px;margin:0 auto;padding:32px 16px 80px}
+.b header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.b h1{font-size:28px}
+.b .hint{border-left:3px solid var(--accent);padding:12px 16px;background:var(--surface);border-radius:0 12px 12px 0;margin-bottom:20px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.b .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.b .card{padding:18px}
+.b .c3{grid-column:span 3}.b .c4{grid-column:span 4}.b .c5{grid-column:span 5}.b .c7{grid-column:span 7}.b .c8{grid-column:span 8}
+.b .lbl{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.b .big{font-family:var(--serif);font-size:30px;margin:4px 0 2px}
+.b h3{font-size:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.b .rows li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.b .rows li:first-child{border-top:0}
+.b .age{display:flex;height:10px;border-radius:999px;overflow:hidden;margin:10px 0 8px}
+.b .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.b .legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+@media (max-width:900px){.b .c3{grid-column:span 6}.b .c4,.b .c5,.b .c7,.b .c8{grid-column:span 12}}
+@media (max-width:520px){.b .c3{grid-column:span 12}}
+
+/* ===== C: Tagesansicht ===== */
+.c{display:grid;grid-template-columns:220px 1fr 340px;min-height:calc(100vh - 53px)}
+.c nav{border-right:1px solid var(--line);padding:24px 14px;display:flex;flex-direction:column;gap:2px}
+.c nav .brand{font-family:var(--serif);font-size:18px;padding:0 10px 18px}
+.c nav a{color:var(--text);text-decoration:none;padding:8px 10px;border-radius:8px;font-size:14px;display:flex;justify-content:space-between}
+.c nav a.on{background:var(--sunk)}
+.c nav a span{color:var(--faint)}
+.c main{padding:28px 32px;min-width:0}
+.c main h1{font-size:26px}
+.c .tl{margin-top:22px;position:relative}
+.c .slot{display:grid;grid-template-columns:56px 1fr;gap:14px;padding:4px 0}
+.c .slot time{font-size:13px;color:var(--faint);padding-top:12px}
+.c .ev{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.c .ev.now{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.c .ev b{font-weight:600}
+.c .ev.free{background:transparent;border-style:dashed;color:var(--faint)}
+.c aside{border-left:1px solid var(--line);padding:28px 22px;background:var(--surface)}
+.c aside h2{font-size:18px;margin-bottom:4px}
+.c .prio li{padding:14px 0;border-bottom:1px solid var(--line)}
+.c .prio li p{margin:4px 0 0;font-size:14px;color:var(--muted)}
+.c .mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.c .mini>div{background:var(--sunk);border-radius:10px;padding:10px 12px}
+.c .mini small,.a .kpis small{display:block}
+.c .mini .v{font-family:var(--serif);font-size:20px}
+.c .mails li{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.c .mails .who{font-weight:600;width:140px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c .mails .sub{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+@media (max-width:1050px){.c{grid-template-columns:1fr}.c nav{display:none}.c aside{border-left:0;border-top:1px solid var(--line)}.c main{padding:24px 16px}}
+@media (max-width:520px){.c .mails .who{width:96px}}
+</style>
+</head>
+<body>
+
+<div class="switch"><div class="switch-in">
+  <b>Entwurf:</b>
+  <button data-v="a" aria-pressed="true">A · Briefing</button>
+  <button data-v="b" aria-pressed="false">B · Kacheln</button>
+  <button data-v="c" aria-pressed="false">C · Tagesansicht</button>
+  <button class="theme" id="theme" aria-pressed="false">Hell / Dunkel</button>
+</div></div>
+
+<!-- ================= A: BRIEFING ================= -->
+<section class="variant on" id="v-a"><div class="a">
+  <div class="date">Mittwoch, 18. November 2026 · aktualisiert 05:04 Uhr</div>
+  <h1>Guten Morgen.</h1>
+  <div class="brief">
+    <p>Heute ist vor allem eines wichtig: <mark>Die AOK-Sammelabrechnung über 18.420 € ist seit 61 Tagen offen</mark> – das ist der größte Einzelposten. Ein Rückruf bei der Abrechnungsstelle lohnt sich vor 10 Uhr.</p>
+    <p>Der Umsatz im November liegt bisher bei 142.300 € und damit 4 % unter dem Vorjahr – vor allem Filiale Süd verkauft weniger Einlagen. Die KI-Hotline hatte gestern 37 Anrufe, davon 5 Rückrufwünsche – zwei betreffen verspätete Kompressionsversorgungen.</p>
+    <p>Ihr Kalender ist bis 11 Uhr frei, danach drei Termine. Im Postfach warten 4 Mails, die eine Antwort von Ihnen brauchen.</p>
+  </div>
+
+  <h2>Heute zuerst</h2>
+  <ul class="clean todo">
+    <li><span class="n">1</span><div class="t"><b>AOK Nordost wegen Sammelabrechnung anrufen</b><br><small>18.420 € offen seit 61 Tagen · san6 Offene Posten</small></div><span class="pill bad">dringend</span></li>
+    <li><span class="n">2</span><div class="t"><b>Lieferrückstand Medi Kompression klären</b><br><small>12 Positionen, 2 Kundenbeschwerden in der Hotline · san6 + Hotline</small></div><span class="pill warn">heute</span></li>
+    <li><span class="n">3</span><div class="t"><b>Angebot Pflegeheim Am Stadtpark beantworten</b><br><small>Mail von Fr. Jansen, wartet seit Montag · Outlook</small></div><span class="pill warn">heute</span></li>
+    <li><span class="n">4</span><div class="t"><b>5 Rückrufwünsche aus der KI-Hotline verteilen</b><br><small>3 × Terminwunsch, 2 × Lieferstatus · KI-Hotline</small></div><span class="pill">diese Woche</span></li>
+  </ul>
+
+  <h2>Zahlen</h2>
+  <div class="kpis">
+    <div><small>Umsatz November</small><div class="v num">142.300 €</div><small>−4 % ggü. Vorjahr</small></div>
+    <div><small>Offene Posten</small><div class="v num">96.850 €</div><small>davon 31 % &gt; 60 Tage</small></div>
+    <div><small>Termine heute</small><div class="v num">23</div><small>in 4 Filialen</small></div>
+    <div><small>Lieferrückstände</small><div class="v num">27</div><small>Positionen</small></div>
+  </div>
+
+  <div class="ask"><input placeholder="Frag nach … z. B. „Welche Kostenträger zahlen am langsamsten?“" aria-label="Frage an den Assistenten"><button aria-label="Senden">↑</button></div>
+</div></section>
+
+<!-- ================= B: KACHELN ================= -->
+<section class="variant" id="v-b"><div class="b">
+  <header>
+    <div><small>Mittwoch, 18. November 2026</small><h1>Übersicht</h1></div>
+    <small>Letzter Abgleich 05:04 · san6 · Outlook · KI-Hotline</small>
+  </header>
+  <div class="hint"><b>Einschätzung des Assistenten:</b> Liquidität ist das Thema der Woche – drei Kostenträger sind über 60 Tage im Verzug. Umsatz und Termine sind im normalen Bereich.</div>
+
+  <div class="grid">
+    <div class="card c3"><div class="lbl">Umsatz November <span class="pill">−4 % VJ</span></div><div class="big num">142.300 €</div>
+      <svg class="spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-label="Umsatz der letzten 12 Monate">
+        <rect class="bar" x="0" y="14" width="8" height="26"/><rect class="bar" x="10" y="10" width="8" height="30"/><rect class="bar" x="20" y="16" width="8" height="24"/><rect class="bar" x="30" y="8" width="8" height="32"/><rect class="bar" x="40" y="12" width="8" height="28"/><rect class="bar" x="50" y="6" width="8" height="34"/><rect class="bar" x="60" y="11" width="8" height="29"/><rect class="bar" x="70" y="9" width="8" height="31"/><rect class="bar" x="80" y="4" width="8" height="36"/><rect class="bar" x="90" y="7" width="8" height="33"/><rect class="bar" x="100" y="5" width="8" height="35"/><rect class="bar cur" x="110" y="19" width="8" height="21"/>
+      </svg></div>
+    <div class="card c3"><div class="lbl">Offene Posten <span class="pill bad">31 % &gt; 60 T</span></div><div class="big num">96.850 €</div><small>142 Belege, 38 Schuldner</small></div>
+    <div class="card c3"><div class="lbl">Termine heute <span class="pill good">voll</span></div><div class="big num">23</div><small>Hauptfiliale 11 · Nord 6 · Süd 4 · Außendienst 2</small></div>
+    <div class="card c3"><div class="lbl">KI-Hotline gestern <span class="pill acc">5 Rückrufe</span></div><div class="big num">37</div><small>Anrufe · Ø 2:40 min</small></div>
+
+    <div class="card c7"><h3>Wichtig heute <small>sortiert vom Assistenten</small></h3>
+      <ul class="clean rows">
+        <li><span><b>AOK Nordost</b> – Sammelabrechnung 61 Tage offen</span><span class="pill bad">18.420 €</span></li>
+        <li><span><b>Medi Kompression</b> – 12 Positionen im Rückstand, 2 Beschwerden</span><span class="pill warn">Lieferung</span></li>
+        <li><span><b>Fr. Jansen (Pflegeheim)</b> – Angebot wartet auf Antwort</span><span class="pill warn">Mail</span></li>
+        <li><span><b>5 Rückrufwünsche</b> aus der Hotline offen</span><span class="pill">Hotline</span></li>
+        <li><span><b>Lager Einlagenrohlinge</b> unter Mindestbestand</span><span class="pill">Lager</span></li>
+      </ul></div>
+    <div class="card c5"><h3>Offene Posten nach Alter</h3>
+      <div class="age"><span style="width:38%;background:var(--good)"></span><span style="width:31%;background:var(--warn)"></span><span style="width:31%;background:var(--bad)"></span></div>
+      <div class="legend"><span><i style="background:var(--good)"></i>0–30 T 36.800 €</span><span><i style="background:var(--warn)"></i>31–60 T 30.020 €</span><span><i style="background:var(--bad)"></i>&gt; 60 T 30.030 €</span></div>
+      <ul class="clean rows" style="margin-top:12px">
+        <li><span>AOK Nordost</span><span class="num">24.110 €</span></li>
+        <li><span>BARMER</span><span class="num">11.940 €</span></li>
+        <li><span>Techniker Krankenkasse</span><span class="num">8.320 €</span></li>
+      </ul></div>
+
+    <div class="card c4"><h3>Termine</h3>
+      <ul class="clean rows"><li><span>11:00 Strategie Filialleitung</span><small>Outlook</small></li><li><span>13:30 Hr. Peters, Orthopädie</span><small>san6</small></li><li><span>15:00 Steuerberater</span><small>Outlook</small></li></ul></div>
+    <div class="card c4"><h3>Postfach <small>4 brauchen Antwort</small></h3>
+      <ul class="clean rows"><li><span>Fr. Jansen – Angebot Pflegebetten</span><small>Mo</small></li><li><span>Medi GmbH – Liefertermin KW 48</span><small>Di</small></li><li><span>Steuerbüro – Unterlagen Q3</span><small>Di</small></li></ul></div>
+    <div class="card c4"><h3>Bestellungen &amp; Lager</h3>
+      <ul class="clean rows"><li><span>Offene Bestellungen</span><span class="num">64</span></li><li><span>Lieferrückstände</span><span class="num">27</span></li><li><span>Unter Mindestbestand</span><span class="num">9</span></li></ul></div>
+  </div>
+</div></section>
+
+<!-- ================= C: TAGESANSICHT ================= -->
+<section class="variant" id="v-c"><div class="c">
+  <nav>
+    <div class="brand">Cockpit</div>
+    <a class="on" href="#">Heute</a>
+    <a href="#">Controlling <span>4</span></a>
+    <a href="#">Offene Posten <span>142</span></a>
+    <a href="#">Termine <span>23</span></a>
+    <a href="#">Postfach <span>4</span></a>
+    <a href="#">KI-Hotline <span>5</span></a>
+    <a href="#">Lager &amp; Bestellungen</a>
+  </nav>
+  <main>
+    <small>Mittwoch, 18. November 2026</small>
+    <h1>Ihr Tag</h1>
+    <div class="tl">
+      <div class="slot"><time>08:00</time><div class="ev free">frei – gute Zeit für Rückrufe (AOK, Hotline)</div></div>
+      <div class="slot"><time>09:00</time><div class="ev now"><b>Vorschlag: AOK Nordost anrufen</b><br><small>18.420 € seit 61 Tagen offen · vom Assistenten eingeplant</small></div></div>
+      <div class="slot"><time>10:00</time><div class="ev free">frei</div></div>
+      <div class="slot"><time>11:00</time><div class="ev"><b>Strategie Filialleitung</b><br><small>Besprechungsraum · Outlook</small></div></div>
+      <div class="slot"><time>13:30</time><div class="ev"><b>Hr. Peters, Orthopädie Nord</b><br><small>Versorgungsabstimmung · san6</small></div></div>
+      <div class="slot"><time>15:00</time><div class="ev"><b>Steuerberater</b><br><small>Teams · Outlook</small></div></div>
+    </div>
+    <h2 style="font-size:18px;margin:30px 0 6px">Postfach – braucht Antwort</h2>
+    <ul class="clean mails">
+      <li><span class="who">Fr. Jansen</span><span class="sub">Angebot Pflegebetten für 14 Zimmer – Rückfrage zu Lieferzeit</span><span class="pill warn">Mo</span></li>
+      <li><span class="who">Medi GmbH</span><span class="sub">Neuer Liefertermin Kompressionsware KW 48</span><span class="pill">Di</span></li>
+      <li><span class="who">Steuerbüro Klein</span><span class="sub">Fehlende Unterlagen Q3</span><span class="pill">Di</span></li>
+    </ul>
+  </main>
+  <aside>
+    <h2>Prioritäten</h2><small>vom Assistenten, 05:04 Uhr</small>
+    <ul class="clean prio">
+      <li><span class="pill bad">dringend</span><br><b>Liquidität: AOK-Abrechnung</b><p>Größter offener Posten, seit 61 Tagen. Zusammen mit BARMER und TK über 44.000 €.</p></li>
+      <li><span class="pill warn">heute</span><br><b>Kompressionsware verspätet</b><p>12 Positionen im Rückstand, 2 Kunden haben sich gestern in der Hotline beschwert.</p></li>
+      <li><span class="pill">Woche</span><br><b>Umsatz leicht unter Vorjahr</b><p>−4 %, vor allem weniger Einlagen-Versorgungen in Filiale Süd.</p></li>
+    </ul>
+    <div class="mini">
+      <div><small>Umsatz Nov.</small><div class="v num">142,3 T€</div></div>
+      <div><small>Offene Posten</small><div class="v num">96,9 T€</div></div>
+      <div><small>Hotline gestern</small><div class="v num">37</div></div>
+      <div><small>Rückstände</small><div class="v num">27</div></div>
+    </div>
+  </aside>
+</div></section>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('.switch button[data-v]');
+  function show(v){
+    btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===v)});
+    document.querySelectorAll('.variant').forEach(function(s){s.classList.toggle('on',s.id==='v-'+v)});
+    try{localStorage.setItem('entwurf',v)}catch(e){}
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.v)})});
+  try{var s=localStorage.getItem('entwurf'); if(s) show(s)}catch(e){}
+  document.getElementById('theme').addEventListener('click',function(){
+    var r=document.documentElement, dark=r.dataset.theme? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme= dark?'light':'dark';
+  });
+})();
+</script>
+</body>
+</html>
