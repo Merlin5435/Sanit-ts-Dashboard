@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Entwurf B2</title>
+<style>
+:root{
+  --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
+  --line:#e4e1d8; --accent:#c4633f; --accent-soft:#f6e6de; --good:#4f7a4a; --good-soft:#e5eee2;
+  --warn:#a8741a; --warn-soft:#f5ecd9; --bad:#b0412e; --bad-soft:#f6e1dc;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,ui-serif,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a;
+  --warn:#d8a650; --warn-soft:#3a3122; --bad:#e3826f; --bad-soft:#3d2723;
+}}
+:root[data-theme="dark"]{
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a;
+  --warn:#d8a650; --warn-soft:#3a3122; --bad:#e3826f; --bad-soft:#3d2723;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:-.01em}
+small{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+ul{list-style:none;margin:0;padding:0}
+button{font:inherit;color:inherit;cursor:pointer}
+
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 80px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+header h1{font-size:30px}
+.sync{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sync span{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.sync span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-right:6px;vertical-align:middle}
+.sync .theme{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.good{background:var(--good-soft);color:var(--good)}.pill.acc{background:var(--accent-soft);color:var(--accent)}
+
+.top{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+
+/* Hauptkachel */
+.focus{padding:24px 26px;border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.focus-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.focus h2{font-size:24px}
+.summary{font-family:var(--serif);font-size:18px;line-height:1.55;margin:12px 0 6px}
+.items li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 14px;padding:16px 0;border-top:1px solid var(--line)}
+.items li:first-child{margin-top:12px}
+.items .n{font-family:var(--serif);font-size:20px;color:var(--accent);line-height:1.3}
+.items .title{font-weight:600;font-size:16px}
+.items .why{color:var(--muted);font-size:14px;margin-top:2px}
+.items .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.items .acts{display:flex;gap:6px;align-items:flex-start}
+.items .acts button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:4px 10px;font-size:13px}
+.items .acts button:hover{background:var(--sunk)}
+.items li.done .title,.items li.done .why{text-decoration:line-through;color:var(--faint)}
+.items li.done .n{color:var(--faint)}
+.src{font-size:12px;color:var(--faint)}
+.more{margin-top:6px;border:0;background:transparent;color:var(--muted);font-size:14px;padding:6px 0}
+
+/* Assistent */
+.side{display:flex;flex-direction:column;gap:16px}
+.chat h3{font-size:18px;margin-bottom:10px}
+.msg{background:var(--sunk);border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:8px}
+.msg.me{background:var(--accent-soft);margin-left:28px}
+.sugs{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.sugs button{text-align:left;border:1px solid var(--line);background:transparent;border-radius:10px;padding:7px 10px;font-size:13px;color:var(--muted)}
+.sugs button:hover{background:var(--sunk);color:var(--text)}
+.ask{display:flex;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 5px 5px 14px;align-items:center}
+.ask input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--text);outline:none}
+.ask button{border:0;background:var(--accent);color:#fff;border-radius:999px;width:32px;height:32px;flex:none}
+.rows li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.rows li:first-child{border-top:0}
+.side h3{font-size:17px}
+
+/* untere Kacheln */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
+.kpis .card{padding:14px 16px}
+.kpis .lbl{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.kpis .big{font-family:var(--serif);font-size:24px;margin-top:2px}
+.lower{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.lower h3{font-size:17px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.age{display:flex;height:8px;border-radius:999px;overflow:hidden;margin:6px 0 8px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+
+@media (max-width:980px){.top{grid-template-columns:1fr}.lower{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.items li{grid-template-columns:22px minmax(0,1fr)}.items .acts{grid-column:2}.focus{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><small>Mittwoch, 18. November 2026</small><h1>Guten Morgen.</h1></div>
+    <div class="sync" aria-label="Abgleich heute früh">
+      <span>san6 05:02</span><span>Outlook 05:03</span><span>KI-Hotline 05:03</span><span>Assistent 05:04</span>
+      <button class="theme" id="theme">Hell / Dunkel</button>
+    </div>
+  </header>
+
+  <div class="top">
+    <section class="card focus">
+      <div class="focus-head"><h2>Am wichtigsten heute</h2><small>vom Assistenten sortiert · 9 Punkte geprüft</small></div>
+      <p class="summary">Liquidität ist heute das Hauptthema: drei Kostenträger sind über 60 Tage im Verzug. Danach kommen die verspätete Kompressionsware, über die sich Kunden schon beschweren, und ein Angebot, das seit Montag auf Antwort wartet.</p>
+      <ul class="items" id="items">
+        <li><span class="n">1</span>
+          <div><div class="title">AOK Nordost wegen Sammelabrechnung anrufen</div>
+            <div class="why">18.420 € seit 61 Tagen offen – der größte Einzelposten. Die Abrechnungsstelle ist laut letzter Mail vormittags erreichbar.</div>
+            <div class="meta"><span class="pill bad">dringend</span><span class="pill">san6 · Offene Posten</span><span class="pill">Outlook · Mail vom 03.11.</span></div></div>
+          <div class="acts"><button data-done>Erledigt</button><button>Später</button></div></li>
+        <li><span class="n">2</span>
+          <div><div class="title">Lieferrückstand Medi Kompression klären</div>
+            <div class="why">12 Positionen offen. Gestern haben 2 Kunden deswegen bei der Hotline angerufen. Medi hat per Mail KW 48 angekündigt – das wäre für 4 Kunden zu spät.</div>
+            <div class="meta"><span class="pill warn">heute</span><span class="pill">san6 · Lieferrückstände</span><span class="pill">KI-Hotline</span><span class="pill">Outlook</span></div></div>
+          <div class="acts"><button data-done>Erledigt</button><button>Später</button></div></li>
+        <li><span class="n">3</span>
+          <div><div class="title">Angebot Pflegeheim Am Stadtpark beantworten</div>
+            <div class="why">Fr. Jansen fragt nach Lieferzeit für 14 Pflegebetten. Auftragswert ca. 21.000 €. Wartet seit Montag.</div>
+            <div class="meta"><span class="pill warn">heute</span><span class="pill">Outlook · Mail</span></div></div>
+          <div class="acts"><button data-done>Erledigt</button><button>Antwort entwerfen</button></div></li>
+        <li><span class="n">4</span>
+          <div><div class="title">5 Rückrufwünsche aus der KI-Hotline verteilen</div>
+            <div class="why">3 × Terminwunsch (Filiale Nord), 2 × Lieferstatus. Vorschlag: an Fr. Krause, sie hat heute Vormittag frei.</div>
+            <div class="meta"><span class="pill">diese Woche</span><span class="pill">KI-Hotline</span><span class="pill">san6 · Terminbelegung</span></div></div>
+          <div class="acts"><button data-done>Erledigt</button><button>Später</button></div></li>
+      </ul>
+      <button class="more">+ 5 weitere Punkte mit niedriger Priorität</button>
+    </section>
+
+    <div class="side">
+      <section class="card chat">
+        <h3>Assistent</h3>
+        <div class="msg">Soll ich für die AOK eine Übersicht aller offenen Belege vorbereiten, damit Sie beim Anruf alles vor sich haben?</div>
+        <div class="sugs">
+          <button>Ja, Belegübersicht AOK erstellen</button>
+          <button>Welche Kostenträger zahlen am langsamsten?</button>
+          <button>Antwort an Fr. Jansen entwerfen</button>
+        </div>
+        <div class="ask"><input placeholder="Frage stellen …" aria-label="Frage an den Assistenten"><button aria-label="Senden">↑</button></div>
+      </section>
+      <section class="card">
+        <h3 style="margin-bottom:6px">Termine heute</h3>
+        <ul class="rows"><li><span>11:00 Strategie Filialleitung</span><small>Outlook</small></li><li><span>13:30 Hr. Peters, Orthopädie</span><small>san6</small></li><li><span>15:00 Steuerberater</span><small>Outlook</small></li></ul>
+      </section>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="card"><div class="lbl">Umsatz November <span class="pill">−4 % VJ</span></div><div class="big num">142.300 €</div></div>
+    <div class="card"><div class="lbl">Offene Posten <span class="pill bad">31 % &gt; 60 T</span></div><div class="big num">96.850 €</div></div>
+    <div class="card"><div class="lbl">Termine heute <span class="pill good">voll</span></div><div class="big num">23</div></div>
+    <div class="card"><div class="lbl">KI-Hotline gestern <span class="pill acc">5 Rückrufe</span></div><div class="big num">37</div></div>
+  </div>
+
+  <div class="lower">
+    <section class="card"><h3>Postfach <small>4 brauchen Antwort</small></h3>
+      <ul class="rows"><li><span>Fr. Jansen – Angebot Pflegebetten</span><small>Mo</small></li><li><span>Medi GmbH – Liefertermin KW 48</span><small>Di</small></li><li><span>Steuerbüro – Unterlagen Q3</span><small>Di</small></li></ul></section>
+    <section class="card"><h3>KI-Hotline gestern</h3>
+      <ul class="rows"><li><span>Terminwünsche</span><span class="num">14</span></li><li><span>Lieferstatus</span><span class="num">11</span></li><li><span>Beschwerden</span><span class="num">2</span></li><li><span>Sonstiges</span><span class="num">10</span></li></ul></section>
+    <section class="card"><h3>Offene Posten nach Alter</h3>
+      <div class="age"><span style="width:38%;background:var(--good)"></span><span style="width:31%;background:var(--warn)"></span><span style="width:31%;background:var(--bad)"></span></div>
+      <div class="legend"><span><i style="background:var(--good)"></i>0–30 T</span><span><i style="background:var(--warn)"></i>31–60 T</span><span><i style="background:var(--bad)"></i>&gt; 60 T</span></div>
+      <ul class="rows" style="margin-top:8px"><li><span>AOK Nordost</span><span class="num">24.110 €</span></li><li><span>BARMER</span><span class="num">11.940 €</span></li><li><span>TK</span><span class="num">8.320 €</span></li></ul></section>
+  </div>
+</div>
+<script>
+document.querySelectorAll('[data-done]').forEach(function(b){
+  b.addEventListener('click',function(){var li=b.closest('li');li.classList.toggle('done');b.textContent=li.classList.contains('done')?'Rückgängig':'Erledigt';});
+});
+document.getElementById('theme').addEventListener('click',function(){
+  var r=document.documentElement, dark=r.dataset.theme? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+});
+</script>
+</body>
+</html>
