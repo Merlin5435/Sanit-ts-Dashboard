@@ -1,0 +1,83 @@
+Auftrag
+=======
+
+Grundlage: TG-SAN6-02 API-Application Programming Interface.pdf
+
+"Bau mir aus den Daten aus dem PDF eine REST-API als Zugang für TOP-M,
+um Controlling-Daten und Kalendertermine zu synchronisieren."
+
+
+Ergebnis: topm-gateway
+======================
+
+Die REST-API ist ein eigener kleiner Dienst (topm-gateway.zip). Er sitzt vor dem
+san6-Webservice und bietet den eigenen Systemen eine REST-Schnittstelle mit JSON.
+
+Gegen das echte san6 wurde er noch nicht getestet, nur gegen einen
+san6-Simulator, der nach der PDF gebaut wurde. Dort laufen alle 15 Tests durch,
+und auch ein vollständiger Testlauf mit gestartetem Server hat funktioniert.
+
+Annahme: Die Termine sollen mit Outlook / Microsoft 365 abgeglichen werden.
+
+
+Was der Dienst kann
+-------------------
+
+* Termine: Termine aus dem san6 lesen, anlegen, verschieben und absagen. Für
+  Online-Buchungen gibt es außerdem Terminarten, Filialen und freie Zeiten.
+
+* Abgleich mit Outlook in beide Richtungen, alle 15 Minuten:
+  - Neue oder geänderte Termine im san6 landen im Outlook-Kalender des
+    jeweiligen Mitarbeiters.
+  - Verschiebt jemand einen Termin in Outlook, wird die neue Zeit ins san6
+    übernommen. Löscht er ihn, wird er im san6 als abgesagt markiert.
+  - Wird ein Termin auf beiden Seiten geändert, gilt die Version aus dem san6.
+  - Serientermine kann das san6 über die Schnittstelle nicht ändern lassen.
+    Sie gehen deshalb nur vom san6 nach Outlook.
+
+* Kalender-Abo: Jeder Mitarbeiter kann seine Termine zusätzlich als Kalenderlink
+  abonnieren. Das geht auch ohne Microsoft 365.
+
+* Controlling:
+  - Kennzahlen-Übersicht und Umsatz, aufteilbar nach Monat, Woche, Zahlcode,
+    Kostenträger oder Artikel, mit Vorjahresvergleich.
+  - Offene Posten mit Altersstruktur und den größten Schuldnern.
+  - Offene Abrechnungen, offene Bestellungen und Lieferrückstände,
+    Lagerbestand, geänderte Aufträge und offene Orgas.
+  - Eingangsrechnungen samt Anhang können ans san6 übergeben werden.
+  - Jede Liste lässt sich als CSV direkt in Excel öffnen.
+
+* Verlauf: Einmal täglich werden die Rechnungen und der Stand der offenen Posten
+  gespeichert, damit man Entwicklungen über die Zeit sieht.
+
+* Sicherheit: Der Zugang läuft über eigene Schlüssel pro Anwendung. Für reine
+  Auswertungen gibt es Schlüssel, die nur lesen dürfen.
+
+
+Was vor dem Start zu tun ist
+----------------------------
+
+1. Im san6 unter Vorbereitung -> API-Schnittstelle ein eigenes System für den
+   Dienst anlegen und die Funktionen freischalten. Die Liste steht in der README.
+2. Die Datei .env ausfüllen und "docker compose up -d" starten.
+3. Mit "python -m topm_gateway ping" testen, ob der Zugang zum san6 funktioniert.
+
+
+Mit TopM zu klären
+------------------
+
+Das PDF enthält keine XML-Beispiele, deshalb sind zwei Punkte noch offen:
+
+* Anmeldung: Der Hash-Wert aus dem Beispiel in Kapitel 3.3.2 ließ sich nicht
+  nachrechnen. Meldet der Ping-Test einen Fehler bei der Anmeldung, auf die
+  zweite Variante umstellen (SAN6_MD5_BASIS=mit_api).
+* Format beim Senden von Daten: Wie das san6 die gesendeten Daten genau
+  erwartet, ist nicht beschrieben. Der Dienst lässt sich darauf anpassen.
+
+
+Outlook / Microsoft 365
+-----------------------
+
+Für den Abgleich mit Outlook braucht die IT eine App-Registrierung in
+Microsoft 365 mit der Berechtigung Calendars.ReadWrite. Die Anleitung steht in
+der README.
