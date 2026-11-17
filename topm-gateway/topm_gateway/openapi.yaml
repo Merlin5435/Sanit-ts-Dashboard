@@ -1,0 +1,311 @@
+openapi: 3.0.3
+info:
+  title: TopM-Gateway – san6 REST-API
+  version: 1.0.0
+  description: |
+    JSON/REST-Zugang zur TopM-san6-API (TG-SAN6-02) für **Controlling-Daten** und **Terminsynchronisation**.
+    Das Gateway übersetzt in die san6-Funktionsaufrufe (`inhouse.top?funktion=API-…`, XML),
+    kümmert sich um MD5-Authentifizierung und TAN und hält einen Sync-Stand (SQLite).
+
+    **Authentifizierung:** Header `X-API-Key: <key>` oder `Authorization: Bearer <key>`.
+    Lese-Keys dürfen nur GET. Datumsparameter: `JJJJ-MM-TT` oder `TT.MM.JJJJ`.
+    Listen-Endpunkte liefern mit `?format=csv` eine Excel-taugliche CSV (Semikolon, Dezimalkomma).
+
+    **Fehler aus dem san6** werden als `{"fehler": "...", "san6": {"funktion","code","text"}}` zurückgegeben
+    (422 = fachlicher Fehler, 502 = Konfiguration/Freischaltung, 504 = san6 nicht erreichbar).
+servers:
+  - url: /
+security:
+  - ApiKey: []
+tags:
+  - name: Termine
+  - name: Sync
+  - name: Controlling
+  - name: System
+components:
+  securitySchemes:
+    ApiKey: {type: apiKey, in: header, name: X-API-Key}
+  parameters:
+    von: {name: von, in: query, schema: {type: string, format: date}, description: "Default Termine: heute, Controlling: Monatsanfang"}
+    bis: {name: bis, in: query, schema: {type: string, format: date}, description: "Default Termine: von+14 Tage, Controlling: heute"}
+    format: {name: format, in: query, schema: {type: string, enum: [json, csv], default: json}}
+    nummer: {name: nummer, in: path, required: true, schema: {type: string, example: "00000061-0001"}}
+  schemas:
+    Termin:
+      type: object
+      properties:
+        nummer: {type: string, example: "00000061-0001"}
+        terminart: {type: string, example: "80-Einlagenversorgung"}
+        thema: {type: string}
+        status: {type: string, enum: ["0","1","2","3","7","8","9"], description: "0 bestätigt, 1 abgelaufen, 2 angefragt, 3 optional, 7 abgesagt, 8 erledigt, 9 gelöscht"}
+        status_text: {type: string}
+        start: {type: string, example: "2026-11-04T09:00"}
+        ende: {type: string, example: "2026-11-04T09:30"}
+        ganztaegig: {type: boolean}
+        serientermin: {type: string}
+        mitarbeiter: {type: string, example: "012-Iltgen"}
+        mitarbeiter_nr: {type: string, example: "012"}
+        infos: {type: string}
+        notfall: {type: boolean}
+        spaetere_planung: {type: boolean}
+        kunde: {type: object, description: "Kundennr, Kundenname, Strasse, Plz, Ort, Telefon, FixTermin…"}
+        auftrag: {type: object, description: "Auftragsnummer, Stichwort, Positionen … (Sonderfelder je nach API-Vorbereitung)"}
+    TerminNeu:
+      type: object
+      required: [terminart, mitarbeiter, start, ende]
+      properties:
+        terminart: {type: string, example: "80"}
+        mitarbeiter: {type: string, example: "012"}
+        start: {type: string, example: "2026-11-05T10:00"}
+        ende: {type: string, example: "2026-11-05T10:30"}
+        status: {type: string, default: "0"}
+        thema: {type: string}
+        info: {type: string}
+        kundennummer: {type: string}
+        auftragsnummer: {type: string}
+        kunde: {type: string}
+        strasse: {type: string}
+        plz: {type: string}
+        ort: {type: string}
+        telefon: {type: string}
+        spaetere_planung: {type: boolean}
+    TerminUpdate:
+      type: object
+      description: Nicht angegebene Pflichtfelder werden aus dem Gateway-Cache ergänzt.
+      properties:
+        start: {type: string}
+        ende: {type: string}
+        mitarbeiter: {type: string}
+        status: {type: string, enum: ["0","1","2","3","7","8","9"]}
+        notfall: {type: boolean}
+        infos: {type: string}
+        spaetere_planung: {type: boolean}
+paths:
+  /health:
+    get: {tags: [System], security: [], summary: Lebenszeichen des Gateways, responses: {"200": {description: OK}}}
+  /api/v1/system/ping:
+    get: {tags: [System], summary: "san6 API-PING (Erreichbarkeit + Zugangsdaten prüfen)", responses: {"200": {description: Mandanteninfo}}}
+  /api/v1/system/status:
+    get: {tags: [System], summary: san6 API-STATUS, responses: {"200": {description: OK}}}
+
+  /api/v1/termine:
+    get:
+      tags: [Termine]
+      summary: Termine aus dem san6-Timer (API-TERMINE)
+      parameters:
+        - $ref: '#/components/parameters/von'
+        - $ref: '#/components/parameters/bis'
+        - {name: mitarbeiter, in: query, schema: {type: string}, example: "012,013"}
+        - {name: status, in: query, schema: {type: string}, example: "0,2"}
+        - {name: quelle, in: query, schema: {type: string, enum: [live, cache], default: live}}
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: Liste
+          content: {application/json: {schema: {type: object, properties: {anzahl: {type: integer}, daten: {type: array, items: {$ref: '#/components/schemas/Termin'}}}}}}
+    post:
+      tags: [Termine]
+      summary: Termin direkt anlegen (API-TERMINNEU1)
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TerminNeu'}}}}
+      responses: {"201": {description: Angelegt}, "400": {description: Eingabefehler}, "422": {description: san6-Fehler}}
+  /api/v1/termine/anfragen:
+    post:
+      tags: [Termine]
+      summary: Terminanfrage für Online-Buchung (API-TERMINNEU)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [terminart, filiale, start, mitarbeiter, vorname, nachname, email]
+              properties:
+                terminart: {type: string}
+                filiale: {type: string}
+                start: {type: string}
+                mitarbeiter: {type: string}
+                vorname: {type: string}
+                nachname: {type: string}
+                email: {type: string}
+                strasse: {type: string}
+                plz: {type: string}
+                ort: {type: string}
+                geburtsdatum: {type: string}
+                versichertennummer: {type: string}
+                telefon: {type: string}
+                mobil: {type: string}
+                hinweise: {type: string}
+      responses: {"201": {description: Angefragt}}
+  /api/v1/termine/{nummer}:
+    parameters: [{$ref: '#/components/parameters/nummer'}]
+    get: {tags: [Termine], summary: Einzeltermin aus dem Sync-Cache, responses: {"200": {description: OK}, "404": {description: nicht im Cache}}}
+    patch:
+      tags: [Termine]
+      summary: Termin ändern (API-TERMINUPDATE)
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TerminUpdate'}}}}
+      responses: {"200": {description: OK}, "409": {description: Serientermin – nicht unterstützt}}
+    delete:
+      tags: [Termine]
+      summary: Termin absagen (Status 7) oder löschen (Status 9) per API-TERMINUPDATE
+      parameters: [{name: status, in: query, schema: {type: string, enum: ["7","9"], default: "7"}}]
+      responses: {"200": {description: OK}}
+  /api/v1/terminarten:
+    get: {tags: [Termine], summary: API-TERMINARTEN, responses: {"200": {description: OK}}}
+  /api/v1/terminarten/{terminart}/filialen:
+    get:
+      tags: [Termine]
+      summary: API-TERMINFILIALEN
+      parameters: [{name: terminart, in: path, required: true, schema: {type: string}}]
+      responses: {"200": {description: OK}}
+  /api/v1/terminbelegung:
+    get:
+      tags: [Termine]
+      summary: Freie Slots (API-TERMINBELEGUNG)
+      parameters:
+        - {name: terminart, in: query, required: true, schema: {type: string}}
+        - {name: filiale, in: query, required: true, schema: {type: string}}
+        - {name: datum, in: query, schema: {type: string}}
+      responses: {"200": {description: OK}}
+  /api/v1/kalender/{mitarbeiter}.ics:
+    get:
+      tags: [Termine]
+      summary: iCalendar-Feed zum Abonnieren in Outlook/Google/Apple (aus dem Sync-Cache)
+      security: []
+      parameters:
+        - {name: mitarbeiter, in: path, required: true, schema: {type: string}, description: "012, 012,013 oder alle"}
+        - {name: token, in: query, required: true, schema: {type: string}, description: GATEWAY_ICS_TOKEN oder ein API-Key}
+      responses: {"200": {description: text/calendar}}
+
+  /api/v1/sync/termine:
+    post: {tags: [Sync], summary: "Terminsync sofort ausführen (san6 ↔ Outlook)", responses: {"200": {description: Ergebnis mit Zählern}, "409": {description: läuft bereits}}}
+  /api/v1/sync/controlling:
+    post: {tags: [Sync], summary: Rechnungen archivieren + Snapshot offene Posten, responses: {"200": {description: OK}}}
+  /api/v1/sync/status:
+    get: {tags: [Sync], summary: Letzte Sync-Läufe, responses: {"200": {description: OK}}}
+  /api/v1/sync/aenderungen:
+    get:
+      tags: [Sync]
+      summary: Änderungsfeed (Delta) für nachgelagerte Systeme
+      description: Mit `seit=<naechste_seit>` aus der letzten Antwort weiterlesen.
+      parameters:
+        - {name: seit, in: query, schema: {type: integer, default: 0}}
+        - {name: entity, in: query, schema: {type: string, enum: [termin, kostenrechnung]}}
+        - {name: limit, in: query, schema: {type: integer, default: 500}}
+      responses: {"200": {description: OK}}
+
+  /api/v1/controlling/kpi:
+    get:
+      tags: [Controlling]
+      summary: Kennzahlen-Übersicht (Umsatz inkl. Vorjahr, offene Posten, Einkauf, Lager, Termine, Orgas)
+      parameters:
+        - $ref: '#/components/parameters/von'
+        - $ref: '#/components/parameters/bis'
+        - {name: orga_gruppe, in: query, schema: {type: string}}
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/rechnungen:
+    get:
+      tags: [Controlling]
+      summary: Rechnungen eines Zeitraums (API-RECHNUNGEN, ohne Eigenanteilsrechnungen)
+      parameters:
+        - $ref: '#/components/parameters/von'
+        - $ref: '#/components/parameters/bis'
+        - {name: zahlcode, in: query, schema: {type: string}}
+        - {name: konto, in: query, schema: {type: string}, description: Kostenträger-Nummer}
+        - {name: positionen, in: query, schema: {type: boolean, default: false}}
+        - {name: quelle, in: query, schema: {type: string, enum: [live, archiv], default: live}}
+        - $ref: '#/components/parameters/format'
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/umsatz:
+    get:
+      tags: [Controlling]
+      summary: Umsatz gruppiert
+      parameters:
+        - $ref: '#/components/parameters/von'
+        - $ref: '#/components/parameters/bis'
+        - {name: gruppierung, in: query, schema: {type: string, enum: [monat, woche, tag, zahlcode, kostentraeger, artikel, status], default: monat}}
+        - {name: quelle, in: query, schema: {type: string, enum: [live, archiv]}}
+        - $ref: '#/components/parameters/format'
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/offene-posten:
+    get:
+      tags: [Controlling]
+      summary: Offene Posten inkl. Altersstruktur (API-INKASSO1)
+      parameters:
+        - {name: nur_ueberfaellig, in: query, schema: {type: boolean}}
+        - $ref: '#/components/parameters/format'
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/offene-posten/verlauf:
+    get:
+      tags: [Controlling]
+      summary: Tägliche Snapshots der offenen Posten (aus /sync/controlling)
+      parameters: [{$ref: '#/components/parameters/von'}, {$ref: '#/components/parameters/bis'}, {$ref: '#/components/parameters/format'}]
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/abrechnungen:
+    get: {tags: [Controlling], summary: Offene Abrechnungen (API-ABRECHNUNG1), responses: {"200": {description: OK}}}
+  /api/v1/controlling/bestellungen:
+    get:
+      tags: [Controlling]
+      summary: Offene Bestellungen (API-BESTELLUNGEN1)
+      parameters:
+        - {name: filiale, in: query, schema: {type: string}}
+        - {name: bestellung, in: query, schema: {type: string}}
+        - {name: abnr, in: query, schema: {type: string}}
+        - $ref: '#/components/parameters/format'
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/lieferrueckstaende:
+    get: {tags: [Controlling], summary: Lieferrückstände (API-EINKAUF5), responses: {"200": {description: OK}}}
+  /api/v1/controlling/lagerbestand:
+    get:
+      tags: [Controlling]
+      summary: Lagerbestände (API-ARTIKELBESTAND)
+      parameters:
+        - {name: artikel, in: query, schema: {type: string}}
+        - {name: filiale, in: query, schema: {type: string}}
+        - $ref: '#/components/parameters/format'
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/auftraege/aenderungen:
+    get:
+      tags: [Controlling]
+      summary: Geänderte Aufträge seit Timestamp (API-AUFTRAEGEGEAENDERT)
+      parameters:
+        - {name: timestamp, in: query, schema: {type: string, example: "20260614150359177"}}
+        - {name: fortsetzen, in: query, schema: {type: boolean}, description: Gespeicherten Timestamp verwenden und fortschreiben}
+        - {name: schnittstelle, in: query, schema: {type: string, default: "*"}}
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/orgas:
+    get:
+      tags: [Controlling]
+      summary: Offene Orgas (API-ANZAHLORGAS / OFFENEORGAS)
+      parameters:
+        - {name: gruppe, in: query, required: true, schema: {type: string}, description: 2-stellig Gruppe, 3-stellig Sachbearbeiter}
+        - {name: liste, in: query, schema: {type: boolean}}
+      responses: {"200": {description: OK}}
+  /api/v1/controlling/kostenrechnung:
+    post:
+      tags: [Controlling]
+      summary: Eingangs-/Kostenrechnung an san6 übertragen (API-KOSTENRECHNUNG)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lieferant: {type: string}
+                ustid: {type: string}
+                rechnungsnummer: {type: string}
+                rechnungsdatum: {type: string}
+                leistungsdatum: {type: string}
+                leistungsdatum_bis: {type: string}
+                netto: {type: number}
+                netto0: {type: number}
+                netto1: {type: number}
+                netto2: {type: number}
+                brutto: {type: number}
+                iban: {type: string}
+                bic: {type: string}
+                bank: {type: string}
+                anlagen:
+                  type: array
+                  items: {type: object, required: [dateiname, datei_base64], properties: {dateiname: {type: string}, bezeichnung: {type: string}, datei_base64: {type: string}}}
+      responses: {"201": {description: Übertragen}}

@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      GATEWAY_EMBEDDED_WORKER: "0"
+    volumes: ["./data:/data"]
+    ports: ["8080:8080"]
+    restart: unless-stopped
+  worker:
+    build: .
+    env_file: .env
+    command: ["python", "-m", "topm_gateway", "worker"]
+    volumes: ["./data:/data"]
+    restart: unless-stopped
