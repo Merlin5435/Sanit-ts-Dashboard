@@ -1,0 +1,84 @@
+Fragen an den Chef – KI-Dashboard
+=================================
+Stand: 17.11.2026. Abhaken, was geklärt ist, und Antworten dahinter schreiben.
+
+
+WICHTIGSTE FRAGEN
+-----------------
+
+[ ] 1. KI-Hotline: Was ist das für ein System?
+       - Wie heißt der Anbieter / das Produkt? Oder hat jemand sie selbst gebaut?
+       - Gibt es eine Schnittstelle (API) oder einen Export (z. B. CSV, E-Mail-Bericht)?
+       - Wer ist Ansprechpartner dafür?
+
+[ ] 2. Firmenserver: Was läuft dort?
+       - Windows Server oder Linux? Welche Version?
+       - Darf dort Docker installiert werden? (Sonst geht es auch ohne, nur etwas mehr Aufwand.)
+       - Wer betreut den Server (eigene IT oder externer Dienstleister)?
+
+
+SAN6
+----
+
+[ ] 3. Wer darf im san6 unter "Vorbereitung -> API-Schnittstelle" ein neues System
+       für das Dashboard anlegen und die Funktionen freischalten?
+[ ] 4. Ist das API-Modul bei TopM lizenziert bzw. kostet die Freischaltung extra?
+[ ] 5. Zugangsdaten für die Einrichtung (nicht per Mail/Chat schicken, erst bei der Einrichtung eintragen):
+       Server-Adresse, Company, Product, Mandant, Systemnummer, Passwort.
+[ ] 6. Ansprechpartner bei TopM für technische Fragen? Zwei Punkte aus der Doku sind unklar
+       (Hash-Berechnung bei der Anmeldung, Format beim Senden von Daten).
+[ ] 7. Kontakt zum Kollegen, von dem die ZIP stammt: Hat er sie schon am echten san6 getestet?
+       Hat er ein laufendes Dashboard, das man sich einmal ansehen kann?
+
+
+OUTLOOK / MICROSOFT 365
+-----------------------
+
+[ ] 8. Nutzt ihr Microsoft 365 (Exchange Online, Outlook im Browser möglich)
+       oder einen eigenen Exchange-Server im Haus?
+[ ] 9. Wer ist Administrator für Microsoft 365? Diese Person muss einmal eine
+       "App-Registrierung" anlegen (ca. 15 Minuten, Anleitung liefere ich).
+[ ] 10. Welche Postfächer und Kalender sollen rein? Nur das des Chefs oder auch andere
+        (z. B. Filialen, Info@-Adresse)? E-Mail-Adresse(n) notieren.
+[ ] 11. Ist es in Ordnung, dass das Programm die Mails des Chefs liest (nur lesen, nichts senden)?
+
+
+KI / CLAUDE / DATENSCHUTZ
+-------------------------
+
+[ ] 12. Darf die Firma ein Konto bei Anthropic (Claude-API) anlegen? Wer macht das,
+        und mit welcher Firmenkreditkarte / Rechnung?
+[ ] 13. Monatliches Budget für die KI? (Schätzung bei einem Durchlauf am Morgen plus
+        Fragen über den Tag: grob 10–50 € im Monat, wird nach dem Test genauer.)
+[ ] 14. Datenschutz: Gibt es einen Datenschutzbeauftragten? Er sollte zustimmen.
+        Mit Anthropic muss ein Vertrag zur Auftragsverarbeitung (AVV/DPA) geschlossen werden.
+[ ] 15. Welche Daten dürfen an die KI? Vorschlag: Beträge, Kostenträger, Lieferanten,
+        Betreff von Mails, Anzahl Anrufe – aber KEINE Patientennamen, Diagnosen oder
+        Versichertennummern (die werden vorher durch Kürzel ersetzt).
+
+
+SEIN PC
+-------
+
+[ ] 16. Windows oder Mac? Welche Version?
+[ ] 17. Darf auf seinem PC ein kleines Programm installiert werden, das beim Anmelden startet?
+        (Braucht evtl. Admin-Rechte / die IT.)
+[ ] 18. Ist der PC im Firmennetz, wenn er ihn nutzt? Oder auch von zu Hause / unterwegs?
+
+
+INHALT – WAS IST IHM WICHTIG?
+-----------------------------
+
+[ ] 19. Was soll immer ganz oben stehen? (z. B. offene Posten über 60 Tage, Beschwerden,
+        große Aufträge, bestimmte Kunden/Kostenträger)
+[ ] 20. Gibt es Dinge, die ihn NICHT interessieren und weggelassen werden sollen?
+[ ] 21. Welche Filialen und Mitarbeiter gibt es? (Für Termine und Zuordnung von Rückrufen.)
+[ ] 22. Soll er Aufgaben an Mitarbeiter weitergeben können, direkt aus dem Dashboard?
+[ ] 23. Uhrzeit für den Morgen-Abgleich: 5:00 Uhr passt? Auch am Wochenende?
+
+
+RAHMEN
+------
+
+[ ] 24. Bis wann soll eine erste Version laufen?
+[ ] 25. Entwurf B2 (entwuerfe/entwurf-b2.html) zeigen – gefällt ihm der Aufbau?
