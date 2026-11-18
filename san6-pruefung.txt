@@ -1,0 +1,105 @@
+Prüfung: san6-API-Dokumentation und Gateway
+============================================
+Stand: 18.11.2026. Grundlage: TG-SAN6-02 (323 Seiten, Stand 26.10.2026),
+komplett gelesen und mit dem Code des Gateways (topm-gateway) abgeglichen.
+
+
+KURZFASSUNG
+-----------
+
+1. Das Gateway setzt die Doku im Wesentlichen richtig um. Es nutzt die passenden
+   Funktionen für Termine, Rechnungen, offene Rechnungen, Bestellungen, Lager und Orgas.
+
+2. Einer der zwei "offenen Punkte" des Kollegen ist geklärt:
+   Das Format beim Senden steht in der Doku. Es ist ein XML-Dokument im POST-Teil,
+   das Wurzel-Element heißt wie das Segment in der Tabelle (z. B. <TerminNeu>,
+   <TerminUpdate>, <Orga>). Es gibt Beispiele im PDF und eine Beispiel-Sammlung von
+   TopM zum Download (siehe unten). Das Gateway macht es bereits so.
+
+3. Der andere Punkt bleibt offen: Das MD5-Beispiel in Kapitel 3.3.2 lässt sich
+   nicht nachrechnen. Ich habe viele Varianten probiert. Das Beispiel ist vermutlich
+   nur ein Platzhalter. Lösung: Mit TopM klären oder einfach beim ersten Test
+   ausprobieren. Notfalls geht auch der einfache Passwort-Modus über HTTPS.
+
+4. Großer Fund zur KI-Hotline: san6 hat eine eigene Schnittstelle für Telefon-KIs
+   ("VoiceBot", Kapitel 4.20 und 5.8). Die Hotline ist sehr wahrscheinlich darüber
+   an san6 angebunden. Dann landen Rückrufwünsche und Anliegen als "Orgas" im san6
+   und das Dashboard kann sie über san6 lesen, ohne eigene Anbindung an die Hotline.
+
+5. Wichtige Lücke: Offene Forderungen gegenüber Krankenkassen gibt es über die API
+   NICHT. Die Funktion für offene Rechnungen (INKASSO1) liefert nur Standard-,
+   Praxisbedarfs- und Eigenanteilsrechnungen, also v. a. Privat-/Patientenrechnungen.
+   Die Beispiele "AOK 18.420 € offen" aus dem Design-Entwurf wären so nicht abrufbar.
+
+
+WAS SAN6 FÜR DAS DASHBOARD HERGIBT
+----------------------------------
+
+Schon im Gateway eingebaut:
+- Termine lesen, anlegen, ändern, absagen (TERMINE, TERMINNEU1, TERMINUPDATE)
+- Rechnungen eines Zeitraums mit Beträgen (RECHNUNGEN)
+- Offene Rechnungen mit Mahnstufe, Zahlungsziel, bezahlt am (INKASSO1)
+- Offene Abrechnungen (ABRECHNUNG1)
+- Offene Bestellungen und Lieferrückstände (BESTELLUNGEN1, EINKAUF5)
+- Lagerbestand (ARTIKELBESTAND)
+- Geänderte Aufträge (AUFTRAEGEGEAENDERT)
+- Offene Orgas, also interne Aufgaben/Nachrichten (OFFENEORGAS, ANZAHLORGAS)
+- Eingangsrechnungen übergeben (KOSTENRECHNUNG, laut Doku extra für Rechnungen,
+  die vorher von einer KI gescannt wurden)
+
+Noch NICHT im Gateway, aber sehr nützlich für "Am wichtigsten heute":
+- WIEDERVORLAGEN: alle offenen Wiedervorlagen mit Datum und Bemerkung
+  (z. B. "Rezept fehlt"). Ideal für die Aufgabenliste.
+- REZEPTANFORDERUNGEN: Aufträge, bei denen ein Rezept angefordert, aber noch
+  nicht eingegangen ist.
+- AUFTRAEGE1: alle Aufträge in einem Status (z. B. offen), mit offenen Mengen.
+- VOICEBOT0: zeigt, welche Hotline-Funktionen im san6 aktiv sind.
+- NACHRICHTEN: offene SMS/WhatsApp-Nachrichten an Kunden.
+- VERSORGUNGSANFRAGE: Anfragen aus dem Entlassmanagement (Kliniken).
+
+Nicht über die API zu bekommen:
+- Offene Forderungen gegenüber Krankenkassen (siehe oben)
+- Abgeschlossene Orgas, also auch die Gesprächsprotokolle der Hotline
+  (VOICEBOT9 legt sie als "abgeschlossenes Orga" an; abrufbar sind nur offene Orgas)
+- Kennzahlen wie Anrufe pro Tag der Hotline. Die müssen vom Hotline-Anbieter kommen.
+- Umsatz/Kennzahlen fertig berechnet. Das Gateway rechnet sie selbst aus den
+  Rechnungen (RECHNUNGEN) zusammen.
+
+
+TECHNISCHE DETAILS FÜR DIE EINRICHTUNG
+--------------------------------------
+
+- Der Webservice ist laut Doku bei den meisten san6-Kunden schon eingerichtet und
+  im Lieferumfang enthalten. Freigeschaltet wird pro "System" (2-stellige Nummer)
+  unter Vorbereitung -> API-Schnittstelle. Jede Funktion muss einzeln freigegeben werden.
+- In san6 kann man den Zugriff auf bestimmte IP-Adressen beschränken
+  ("erlaubte IPs"). Die IP des Firmenservers muss dann dort eingetragen werden.
+- Antworten kommen als XML in ISO-8859-1 (Umlaute). Das Gateway liest das richtig.
+- Zeilenumbrüche in Texten werden als %# übertragen.
+- TopM bietet Beispiele zum Download:
+  https://download.topm.de/API Beispiele im san6 fuer den WebService fuer Lieferanten.zip
+- TopM hat einen Test-Server (in der Doku: home.topm.de:8084, Produkt san6Test).
+  Zugang gibt es bei TopM. Damit kann man testen, ohne echte Daten anzufassen.
+- Serientermine und Termine mit mehreren Mitarbeitern kann TERMINUPDATE nicht
+  ändern. Das Gateway berücksichtigt das schon.
+
+
+DATENSCHUTZ – WAS MIR AUFGEFALLEN IST
+-------------------------------------
+
+- Die Termin-Abfrage kann optional "Sonderfelder" mitliefern, darunter
+  Diagnose (ICD-10) und Diagnosetext. Diese Option sollte im san6 AUS bleiben
+  oder das Programm filtert die Felder heraus, bevor irgendetwas an die KI geht.
+- Viele Funktionen liefern Versichertennummer, Geburtsdatum und Kundennamen.
+  Das Dashboard ersetzt sie wie geplant durch Kürzel, bevor Daten an Claude gehen.
+- Für das Dashboard sollte im san6 ein eigenes System nur mit LESE-Funktionen
+  angelegt werden. Funktionen wie Patient anlegen, SEPA-Mandat usw. bleiben aus.
+
+
+AUSWIRKUNGEN AUF DAS DESIGN
+---------------------------
+
+- "Offene Posten" im Dashboard zeigt nur Patienten-/Privatrechnungen, nicht die
+  Kassenabrechnung. Der Entwurf wird beim Bau entsprechend angepasst.
+- "Am wichtigsten heute" bekommt zusätzlich: Wiedervorlagen, fehlende Rezepte,
+  offene Orgas aus der Hotline.

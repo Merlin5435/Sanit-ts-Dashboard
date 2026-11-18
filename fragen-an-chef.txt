@@ -8,7 +8,11 @@ WICHTIGSTE FRAGEN
 
 [ ] 1. KI-Hotline: Was ist das für ein System?
        - Wie heißt der Anbieter / das Produkt? Oder hat jemand sie selbst gebaut?
-       - Gibt es eine Schnittstelle (API) oder einen Export (z. B. CSV, E-Mail-Bericht)?
+       - NEU: Ist sie über die "VoiceBot"-Schnittstelle an san6 angebunden?
+         (san6 hat dafür eigene Funktionen, siehe san6-pruefung.txt.) Wenn ja:
+         An welche Orga-Gruppe gehen Rückrufwünsche und Anliegen?
+       - Die Anzahl der Anrufe pro Tag gibt san6 nicht her. Gibt der Anbieter eine
+         Statistik raus (Schnittstelle, Export, täglicher E-Mail-Bericht)?
        - Wer ist Ansprechpartner dafür?
 
 [ ] 2. Firmenserver: Was läuft dort?
@@ -43,11 +47,20 @@ SAN6
 
 [ ] 3. Wer darf im san6 unter "Vorbereitung -> API-Schnittstelle" ein neues System
        für das Dashboard anlegen und die Funktionen freischalten?
-[ ] 4. Ist das API-Modul bei TopM lizenziert bzw. kostet die Freischaltung extra?
+[ ] 4. (Teilweise geklärt: Laut Doku gehört der Webservice zum Lieferumfang von san6
+       und ist bei den meisten Kunden schon eingerichtet.) Kurz bestätigen lassen,
+       dass er bei uns läuft und keine Zusatzkosten entstehen.
 [ ] 5. Zugangsdaten für die Einrichtung (nicht per Mail/Chat schicken, erst bei der Einrichtung eintragen):
        Server-Adresse, Company, Product, Mandant, Systemnummer, Passwort.
-[ ] 6. Ansprechpartner bei TopM für technische Fragen? Zwei Punkte aus der Doku sind unklar
-       (Hash-Berechnung bei der Anmeldung, Format beim Senden von Daten).
+[ ] 6. Ansprechpartner bei TopM für technische Fragen? Nur noch ein Punkt ist unklar:
+       die Hash-Berechnung bei der Anmeldung (Kap. 3.3.2). Das Format beim Senden
+       ist inzwischen geklärt.
+       Außerdem fragen: Bekommen wir Zugang zum TopM-Testserver (san6Test)?
+[ ] 6a. NEU: Offene Forderungen gegenüber Krankenkassen gibt die API nicht her
+       (nur Patienten-/Privatrechnungen). Ist das für den Chef wichtig?
+       Wenn ja: TopM fragen, ob es dafür eine Funktion gibt oder geben kann.
+[ ] 6b. NEU: Sind in san6 "erlaubte IPs" für die API gesetzt? Dann muss die IP
+       des Firmenservers dort eingetragen werden.
 [ ] 7. Kontakt zum Kollegen, von dem die ZIP stammt: Hat er sie schon am echten san6 getestet?
        Hat er ein laufendes Dashboard, das man sich einmal ansehen kann?
 
