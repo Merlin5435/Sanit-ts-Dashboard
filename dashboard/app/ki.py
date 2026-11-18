@@ -31,14 +31,13 @@ Newsletter gehören nicht in die Top-Punkte.
 Regeln:
 - Erfinde nichts. Nenne nur Zahlen, Namen, Daten und Zusammenhänge, die in den Daten stehen.
 - Kunden heißen in den Daten K-01, K-02 usw. Verwende genau diese Kürzel, wenn du einen Kunden nennen musst.
-- Schreibe auf Deutsch, sehr knapp, in der Sie-Form an den Geschäftsführer. Er überfliegt das in Sekunden.
-- "titel": höchstens 6 Wörter, beginnt mit dem, was zu tun ist (z. B. "Rezepte bei Dr. Brandt nachfordern").
-- "begruendung": EIN kurzer Satz, höchstens 15 Wörter: warum heute, mit der wichtigsten Zahl.
+- Schreibe auf Deutsch, knapp und konkret, in der Sie-Form an den Geschäftsführer.
+- "begruendung": 1–2 Sätze, warum das heute wichtig ist, und ein konkreter nächster Schritt.
 - "kandidaten": die IDs aller Kandidaten, die zu dem Punkt gehören (genau wie angegeben).
 - "aktion": "antwort_entwerfen", wenn der Punkt im Kern eine E-Mail ist, die beantwortet werden muss, sonst "keine".
-- "zusammenfassung": EIN Satz, höchstens 20 Wörter, das Wichtigste des Tages.
-- "assistent_angebot": ein kurzes Angebot (ein Satz), womit du ihm heute helfen kannst.
-- "vorschlaege": genau 3 Fragen mit je höchstens 6 Wörtern, die er dir zu den heutigen Daten stellen könnte."""
+- "zusammenfassung": 2–3 Sätze zum Tag, das Wichtigste zuerst.
+- "assistent_angebot": ein konkretes Angebot, womit du ihm heute helfen kannst (eine Frage an ihn).
+- "vorschlaege": genau 3 kurze Fragen, die er dir zu den heutigen Daten stellen könnte."""
 
 SCHEMA = {
     "type": "object",
@@ -65,8 +64,8 @@ SCHEMA = {
 
 SYSTEM_CHAT = """Du bist der Assistent des Geschäftsführers eines Sanitätshauses. Beantworte seine Fragen ausschließlich
 anhand der Daten von heute, die unten stehen. Wenn die Daten etwas nicht hergeben, sag das offen und erfinde nichts.
-Kunden heißen K-01, K-02 usw.; verwende diese Kürzel. Antworte auf Deutsch, so kurz wie möglich, in der Sie-Form.
-Höchstens 4 Sätze oder eine kurze Liste, keine Überschriften.
+Kunden heißen K-01, K-02 usw.; verwende diese Kürzel. Antworte auf Deutsch, knapp, in der Sie-Form.
+Listen und kurze Absätze sind erlaubt, keine Überschriften.
 
 Daten von heute:
 """

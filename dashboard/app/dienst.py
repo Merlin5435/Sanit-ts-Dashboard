@@ -123,19 +123,19 @@ class Dienst:
         alt = [k for k in rez if k.get("tage", 0) > 14]
         if rez:
             punkte.append({"titel": f"{len(rez)} fehlende Rezepte nachfordern",
-                           "begruendung": f"{len(alt)} davon seit über 14 Tagen offen",
+                           "begruendung": f"{len(alt)} davon seit über 14 Tagen offen.",
                            "dringlichkeit": "dringend" if alt else "heute", "kandidaten": [k["id"] for k in rez], "aktion": "keine"})
         for art, titel in [("Anliegen aus der KI-Hotline", "Anliegen aus der KI-Hotline bearbeiten"),
                            ("offene Rechnung", "Überfällige Rechnungen prüfen"),
                            ("Lieferrückstand", "Lieferrückstände klären"), ("Wiedervorlage", "Fällige Wiedervorlagen")]:
             ks = [k for k in kands if k["art"] == art]
             if ks:
-                punkte.append({"titel": f"{titel} ({len(ks)})", "begruendung": "",
+                punkte.append({"titel": f"{titel} ({len(ks)})", "begruendung": "Nach festen Regeln ausgewählt, nicht von der KI.",
                                "dringlichkeit": "heute", "kandidaten": [k["id"] for k in ks], "aktion": "keine"})
         for k in [k for k in kands if k["art"] == "E-Mail" and k.get("markiert")][:2]:
-            punkte.append({"titel": k["anzeige"], "begruendung": "Als „Antwort nötig“ markiert",
+            punkte.append({"titel": k["anzeige"], "begruendung": "Mail ist als „Antwort nötig“ markiert.",
                            "dringlichkeit": "heute", "kandidaten": [k["id"]], "aktion": "antwort_entwerfen"})
-        return {"zusammenfassung": "Ohne KI – Liste nach festen Regeln sortiert.",
+        return {"zusammenfassung": "Die KI ist nicht verbunden. Diese Liste ist nach festen Regeln sortiert.",
                 "punkte": punkte[:5], "assistent_angebot": "", "vorschlaege": []}
 
     # ------------------------------------------------------------------ Aktionen
