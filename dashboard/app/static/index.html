@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI-Dashboard</title>
+<style>
+:root{
+  --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
+  --line:#e4e1d8; --accent:#c4633f; --accent-soft:#f6e6de; --good:#4f7a4a; --good-soft:#e5eee2;
+  --warn:#a8741a; --warn-soft:#f5ecd9; --bad:#b0412e; --bad-soft:#f6e1dc;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,ui-serif,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a;
+  --warn:#d8a650; --warn-soft:#3a3122; --bad:#e3826f; --bad-soft:#3d2723; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:-.01em}
+small,.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+ul{list-style:none;margin:0;padding:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 80px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+header h1{font-size:30px}
+.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.ok::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-right:6px;vertical-align:middle}
+.chip.aus::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--bad);margin-right:6px;vertical-align:middle}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px}
+.btn:hover:not(:disabled){background:var(--sunk)}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.hinweis{border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;border:1px solid var(--line);background:var(--surface)}
+.hinweis.test{border-color:color-mix(in srgb,var(--warn) 45%,var(--line));background:var(--warn-soft)}
+.hinweis.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--line));background:var(--bad-soft)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.dringend,.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.heute,.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.top{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.focus{padding:24px 26px;border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.focus-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.focus h2{font-size:24px}
+.summary{font-family:var(--serif);font-size:18px;line-height:1.55;margin:12px 0 6px}
+.items>li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 14px;padding:16px 0;border-top:1px solid var(--line)}
+.items>li:first-child{margin-top:12px}
+.items .n{font-family:var(--serif);font-size:20px;color:var(--accent);line-height:1.3}
+.items .title{font-weight:600;font-size:16px}
+.items .why{color:var(--muted);font-size:14px;margin-top:2px}
+.items .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.acts{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.acts button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:4px 10px;font-size:13px;white-space:nowrap}
+.acts button:hover:not(:disabled){background:var(--sunk)}
+.items li.done .title,.items li.done .why{text-decoration:line-through;color:var(--faint)}
+.items li.done .n{color:var(--faint)}
+.link{border:0;background:transparent;color:var(--muted);font-size:13px;padding:0;text-decoration:underline;text-underline-offset:3px}
+.details{grid-column:2/-1;background:var(--sunk);border-radius:10px;padding:8px 12px;font-size:13.5px}
+.details li{padding:4px 0;border-top:1px solid var(--line)}
+.details li:first-child{border-top:0}
+.more{margin-top:6px;border:0;background:transparent;color:var(--muted);font-size:14px;padding:6px 0}
+.weitere li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.chat h3,.side h3{font-size:18px;margin-bottom:10px}
+.verlauf{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;margin-bottom:8px}
+.msg{background:var(--sunk);border-radius:12px;padding:10px 12px;font-size:14px;white-space:pre-wrap}
+.msg.me{background:var(--accent-soft);margin-left:28px}
+.msg.err{background:var(--bad-soft);color:var(--bad)}
+.sugs{display:flex;flex-direction:column;gap:6px;margin:8px 0 10px}
+.sugs button{text-align:left;border:1px solid var(--line);background:transparent;border-radius:10px;padding:7px 10px;font-size:13px;color:var(--muted)}
+.sugs button:hover{background:var(--sunk);color:var(--text)}
+.ask{display:flex;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 5px 5px 14px;align-items:center}
+.ask input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--text);outline:none}
+.ask button{border:0;background:var(--accent);color:#fff;border-radius:999px;width:32px;height:32px;flex:none}
+.rows li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;align-items:center}
+.rows li:first-child{border-top:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
+.kpis .card{padding:14px 16px;min-width:0}
+.kpis .lbl{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:4px 8px;flex-wrap:wrap}
+.kpis .big{font-family:var(--serif);font-size:24px;margin-top:2px}
+.lower{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.lower h3{font-size:17px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.age{display:flex;height:8px;border-radius:999px;overflow:hidden;margin:6px 0 8px;background:var(--sunk)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);max-width:min(860px,calc(100vw - 32px));width:100%;padding:0}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dlg-body{padding:16px 18px;max-height:70vh;overflow:auto}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--sunk);border-radius:10px;padding:10px 12px;font-size:12.5px;margin:6px 0 14px}
+textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;padding:10px}
+.leer{color:var(--muted);font-size:14px;padding:8px 0}
+@media (max-width:980px){.top{grid-template-columns:1fr}.lower{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.items>li{grid-template-columns:22px minmax(0,1fr)}.acts{grid-column:2;justify-content:flex-start}.details{grid-column:1/-1}.focus{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><small id="datum">…</small><h1>Guten Morgen.</h1></div>
+    <div class="tools">
+      <span class="chip" id="stand">–</span>
+      <span class="chip" id="ki-chip">KI</span>
+      <button class="btn" id="b-abgleich">Jetzt abgleichen</button>
+      <button class="btn" id="b-tag" hidden>Neuer Tag (Test)</button>
+      <button class="btn" id="b-protokoll">Was ging an die KI?</button>
+    </div>
+  </header>
+  <div id="hinweise"></div>
+
+  <div class="top">
+    <section class="card focus">
+      <div class="focus-head"><h2>Am wichtigsten heute</h2><small id="geprueft"></small></div>
+      <p class="summary" id="zusammenfassung"></p>
+      <ul class="items" id="punkte"></ul>
+      <button class="more" id="b-weitere"></button>
+      <ul class="weitere" id="weitere" hidden></ul>
+    </section>
+    <div class="side">
+      <section class="card chat">
+        <h3>Assistent</h3>
+        <div class="verlauf" id="verlauf"></div>
+        <div class="sugs" id="sugs"></div>
+        <form class="ask" id="ask"><input id="frage" placeholder="Frage stellen …" aria-label="Frage an den Assistenten" autocomplete="off"><button aria-label="Senden">↑</button></form>
+      </section>
+      <section class="card"><h3>Termine heute</h3><ul class="rows" id="termine"></ul></section>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="card"><div class="lbl">Umsatz Monat bis gestern <span class="pill" id="k-umsatz-p"></span></div><div class="big num" id="k-umsatz"></div></div>
+    <div class="card"><div class="lbl">Offene Patientenrechnungen <span class="pill bad" id="k-or-p"></span></div><div class="big num" id="k-or"></div></div>
+    <div class="card"><div class="lbl">Termine heute <span class="pill">alle Mitarbeiter</span></div><div class="big num" id="k-termine"></div></div>
+    <div class="card"><div class="lbl">Fehlende Rezepte <span class="pill warn" id="k-rez-p"></span></div><div class="big num" id="k-rez"></div></div>
+  </div>
+
+  <div class="lower">
+    <section class="card"><h3>Postfach <small id="pf-anz"></small></h3><ul class="rows" id="postfach"></ul></section>
+    <section class="card"><h3>Hotline-Anliegen offen <small>aus san6-Orgas</small></h3><ul class="rows" id="hotline"></ul></section>
+    <section class="card"><h3>Offene Patientenrechnungen</h3>
+      <div class="age" id="or-bar"></div>
+      <div class="legend"><span><i style="background:var(--good)"></i>nicht fällig</span><span><i style="background:var(--warn)"></i>überfällig</span><span><i style="background:var(--bad)"></i>gemahnt</span></div>
+      <ul class="rows" id="or-rows" style="margin-top:8px"></ul></section>
+  </div>
+</div>
+
+<dialog id="dlg"><div class="dlg-head"><h3 id="dlg-titel"></h3><button class="btn" id="dlg-zu">Schließen</button></div><div class="dlg-body" id="dlg-body"></div></dialog>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return el;
+}
+const eur = (x) => (x ?? 0).toLocaleString("de-DE", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
+const TAGE = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+function datumLang(iso) { const d = new Date(iso + "T12:00"); return `${TAGE[d.getDay()]}, ${d.toLocaleDateString("de-DE", {day: "numeric", month: "long", year: "numeric"})}`; }
+async function api(pfad, body) {
+  const r = await fetch(pfad, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.fehler || `Fehler ${r.status}`);
+  return j;
+}
+
+let B = null, verlauf = [];
+
+async function laden() { B = await api("/api/briefing"); zeichnen(); }
+
+function zeichnen() {
+  $("datum").textContent = datumLang(B.heute);
+  $("stand").textContent = "Abgleich " + B.erstellt.slice(11, 16) + " · san6 · Outlook";
+  $("stand").className = "chip ok";
+  $("ki-chip").textContent = B.ki_verbunden && !B.ohne_ki ? "KI: " + B.modell : "KI nicht verbunden";
+  $("ki-chip").className = "chip " + (B.ki_verbunden && !B.ohne_ki ? "ok" : "aus");
+  $("b-tag").hidden = !B.testversion;
+
+  const hin = $("hinweise"); hin.replaceChildren();
+  if (B.testversion) hin.append(h("div", {class: "hinweis test"}, h("b", {}, "Testversion: "), "Alle Daten sind erfunden (simuliertes san6 und Outlook). Mit „Neuer Tag“ vergeht ein Tag in der Testwelt."));
+  if (B.ohne_ki) hin.append(h("div", {class: "hinweis bad"}, h("b", {}, "Ohne KI: "), B.ki_verbunden ? "Die KI war beim Abgleich nicht erreichbar – die Liste ist nach festen Regeln sortiert." : "Kein API-Schlüssel hinterlegt (ANTHROPIC_API_KEY). Die Liste ist nach festen Regeln sortiert, Fragen und Entwürfe gehen nicht."));
+  for (const f of B.fehler || []) hin.append(h("div", {class: "hinweis bad"}, f));
+
+  $("geprueft").textContent = (B.ohne_ki ? "nach festen Regeln" : "vom Assistenten sortiert") + ` · ${B.kandidaten_geprueft} Punkte geprüft`;
+  $("zusammenfassung").textContent = B.zusammenfassung;
+
+  const ul = $("punkte"); ul.replaceChildren();
+  if (!B.punkte.length) ul.append(h("li", {}, h("span"), h("div", {class: "leer"}, "Heute steht nichts Wichtiges an.")));
+  B.punkte.forEach((p, i) => ul.append(punkt(p, i + 1)));
+
+  const w = B.weitere || [];
+  $("b-weitere").textContent = w.length ? `+ ${w.length} weitere Punkte mit niedriger Priorität` : "";
+  $("b-weitere").hidden = !w.length;
+  $("weitere").replaceChildren(...w.map(k => {
+    const li = h("li", {}, h("span", {}, k.anzeige, " ", h("small", {}, "· " + k.quelle)));
+    li.append(h("span", {class: "acts"}, h("button", {onclick: (e) => zustand([k.id], "erledigt", li, e.target)}, "Erledigt")));
+    return li;
+  }));
+
+  assistentStart();
+  $("termine").replaceChildren(...(B.termine.length ? B.termine.map(t => h("li", {}, h("span", {}, t.zeit + " " + t.titel), h("small", {}, t.quelle))) : [h("li", {class: "leer"}, "Keine Termine")]));
+
+  const k = B.kennzahlen;
+  $("k-umsatz").textContent = eur(k.umsatz_monat);
+  $("k-umsatz-p").textContent = k.umsatz_veraenderung == null ? "–" : (k.umsatz_veraenderung > 0 ? "+" : "") + k.umsatz_veraenderung.toLocaleString("de-DE") + " % VJ";
+  $("k-or").textContent = eur(k.offene_rechnungen);
+  $("k-or-p").textContent = k.anzahl_gemahnt + " gemahnt";
+  $("k-termine").textContent = k.termine_heute;
+  $("k-rez").textContent = k.rezepte_fehlend;
+  $("k-rez-p").textContent = k.rezepte_ueber_14 + " > 14 Tage";
+
+  $("pf-anz").textContent = B.postfach.length + " brauchen Antwort";
+  $("postfach").replaceChildren(...(B.postfach.length ? B.postfach.map(m => h("li", {}, h("span", {}, m.von + " – " + m.betreff), h("button", {class: "link", onclick: () => entwurf(m.id, m.betreff)}, "Entwurf"))) : [h("li", {class: "leer"}, "Nichts offen")]));
+  const ho = Object.entries(k.hotline_offen);
+  $("hotline").replaceChildren(...(ho.length ? ho.map(([a, n]) => h("li", {}, h("span", {}, a), h("span", {class: "num"}, n))) : [h("li", {class: "leer"}, "Keine offenen Anliegen")]));
+  const sum = k.offene_rechnungen || 1;
+  $("or-bar").replaceChildren(...[["or_nicht_faellig", "--good"], ["or_ueberfaellig", "--warn"], ["or_gemahnt", "--bad"]].map(([f, c]) => h("span", {style: `width:${100 * k[f] / sum}%;background:var(${c})`})));
+  $("or-rows").replaceChildren(h("li", {}, h("span", {}, "noch nicht fällig"), h("span", {class: "num"}, eur(k.or_nicht_faellig))),
+    h("li", {}, h("span", {}, "überfällig, nicht gemahnt"), h("span", {class: "num"}, eur(k.or_ueberfaellig))),
+    h("li", {}, h("span", {}, `gemahnt (${k.anzahl_gemahnt} Rechnungen)`), h("span", {class: "num"}, eur(k.or_gemahnt))));
+}
+
+function punkt(p, n) {
+  const kids = p.kandidaten.map(k => k.id);
+  const li = h("li", {});
+  const det = h("ul", {class: "details", hidden: true}, p.kandidaten.map(k => h("li", {}, k.anzeige)));
+  const bErl = h("button", {onclick: (e) => zustand(kids, li.classList.contains("done") ? "offen" : "erledigt", li, e.target)}, "Erledigt");
+  const acts = h("div", {class: "acts"}, bErl, h("button", {onclick: (e) => zustand(kids, "spaeter", li, e.target)}, "Später"));
+  if (p.aktion === "antwort_entwerfen" && p.mail_id) acts.prepend(h("button", {onclick: () => entwurf(p.mail_id, p.titel)}, "Antwort entwerfen"));
+  li.append(h("span", {class: "n"}, n),
+    h("div", {}, h("div", {class: "title"}, p.titel), h("div", {class: "why"}, p.begruendung),
+      h("div", {class: "meta"}, h("span", {class: "pill " + (p.dringlichkeit === "dringend" ? "dringend" : p.dringlichkeit === "heute" ? "heute" : "")}, p.dringlichkeit),
+        p.quellen.map(q => h("span", {class: "pill"}, q)),
+        h("button", {class: "link", onclick: () => { det.hidden = !det.hidden; }}, `Details (${kids.length})`))),
+    acts, det);
+  return li;
+}
+
+async function zustand(kids, z, li, btn) {
+  btn.disabled = true;
+  try {
+    await api("/api/zustand", {kandidaten: kids, zustand: z});
+    if (z === "spaeter") { li.replaceChildren(h("span"), h("div", {class: "leer"}, "Auf morgen verschoben.")); return; }
+    li.classList.toggle("done", z === "erledigt");
+    btn.textContent = z === "erledigt" ? "Rückgängig" : "Erledigt";
+  } catch (e) { alert(e.message); } finally { btn.disabled = false; }
+}
+
+function assistentStart() {
+  verlauf = [];
+  const v = $("verlauf"); v.replaceChildren();
+  if (B.assistent_angebot) v.append(h("div", {class: "msg"}, B.assistent_angebot));
+  else if (!B.ki_verbunden) v.append(h("div", {class: "msg"}, "Ich bin noch nicht mit der KI verbunden. Sobald ein API-Schlüssel hinterlegt ist, beantworte ich hier Fragen zu den Daten von heute."));
+  $("sugs").replaceChildren(...(B.vorschlaege || []).map(s => h("button", {onclick: () => fragen(s)}, s)));
+}
+
+async function fragen(text) {
+  text = (text || "").trim(); if (!text) return;
+  const v = $("verlauf");
+  v.append(h("div", {class: "msg me"}, text));
+  const warte = h("div", {class: "msg"}, "…"); v.append(warte); v.scrollTop = v.scrollHeight;
+  $("frage").value = ""; $("sugs").replaceChildren();
+  try {
+    const r = await api("/api/frage", {frage: text, verlauf});
+    warte.textContent = r.antwort;
+    verlauf.push({role: "user", content: text}, {role: "assistant", content: r.antwort});
+  } catch (e) { warte.className = "msg err"; warte.textContent = e.message; }
+  v.scrollTop = v.scrollHeight;
+}
+
+function dialog(titel, ...inhalt) {
+  $("dlg-titel").textContent = titel; $("dlg-body").replaceChildren(...inhalt); $("dlg").showModal();
+}
+
+async function entwurf(mailId, titel) {
+  const ta = h("textarea", {}, "Die KI schreibt einen Entwurf …");
+  dialog("Antwortentwurf: " + titel, ta, h("p", {class: "muted"}, "Entwurf zum Bearbeiten – es wird nichts automatisch gesendet."));
+  try { ta.value = (await api("/api/entwurf/" + encodeURIComponent(mailId), {})).entwurf; }
+  catch (e) { ta.value = e.message; }
+}
+
+async function protokoll() {
+  const liste = await api("/api/ki-protokoll");
+  if (!liste.length) return dialog("Was ging an die KI?", h("p", {}, "Noch keine Anfrage an die KI. Ohne API-Schlüssel wird nichts gesendet."));
+  dialog("Was ging an die KI?",
+    h("p", {class: "muted"}, "Genau diese Texte wurden an Claude geschickt. Kunden erscheinen nur als Kürzel (K-01 …), Telefon- und Versichertennummern sind entfernt."),
+    ...liste.map(e => h("details", {}, h("summary", {}, `${e.zeit.replace("T", " ")} · ${e.zweck} · ${e.eingabe_tokens} / ${e.ausgabe_tokens} Tokens`),
+      h("small", {}, "Gesendet:"), h("pre", {}, e.gesendet), h("small", {}, "Antwort:"), h("pre", {}, e.antwort))));
+}
+
+async function knopf(btn, text, fn) {
+  const alt = btn.textContent; btn.disabled = true; btn.textContent = text;
+  try { await fn(); await laden(); } catch (e) { alert(e.message); }
+  finally { btn.disabled = false; btn.textContent = alt; }
+}
+
+$("b-abgleich").onclick = (e) => knopf(e.target, "Abgleich läuft …", () => api("/api/abgleich", {}));
+$("b-tag").onclick = (e) => knopf(e.target, "Neuer Tag …", () => api("/api/neuer-tag", {}));
+$("b-protokoll").onclick = protokoll;
+$("b-weitere").onclick = () => { $("weitere").hidden = !$("weitere").hidden; };
+$("ask").onsubmit = (e) => { e.preventDefault(); fragen($("frage").value); };
+$("dlg-zu").onclick = () => $("dlg").close();
+laden().catch(e => { $("hinweise").replaceChildren(h("div", {class: "hinweis bad"}, "Dashboard konnte nicht geladen werden: " + e.message)); });
+</script>
+</body>
+</html>
