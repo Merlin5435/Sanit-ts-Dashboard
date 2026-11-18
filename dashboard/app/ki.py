@@ -32,6 +32,7 @@ Regeln:
 - Erfinde nichts. Nenne nur Zahlen, Namen, Daten und Zusammenhänge, die in den Daten stehen.
 - Kunden heißen in den Daten K-01, K-02 usw. Verwende genau diese Kürzel, wenn du einen Kunden nennen musst.
 - Schreibe auf Deutsch, knapp und konkret, in der Sie-Form an den Geschäftsführer.
+- Vermeide lange Sätze und Satzketten: lieber zwei kurze Sätze als einen langen, keine Aneinanderreihung mit "und", "sowie", Semikolon.
 - "begruendung": 1–2 Sätze, warum das heute wichtig ist, und ein konkreter nächster Schritt.
 - "kandidaten": die IDs aller Kandidaten, die zu dem Punkt gehören (genau wie angegeben).
 - "aktion": "antwort_entwerfen", wenn der Punkt im Kern eine E-Mail ist, die beantwortet werden muss, sonst "keine".
@@ -65,13 +66,14 @@ SCHEMA = {
 SYSTEM_CHAT = """Du bist der Assistent des Geschäftsführers eines Sanitätshauses. Beantworte seine Fragen ausschließlich
 anhand der Daten von heute, die unten stehen. Wenn die Daten etwas nicht hergeben, sag das offen und erfinde nichts.
 Kunden heißen K-01, K-02 usw.; verwende diese Kürzel. Antworte auf Deutsch, knapp, in der Sie-Form.
+Vermeide lange Sätze und Satzketten: lieber zwei kurze Sätze als einen langen.
 Listen und kurze Absätze sind erlaubt, keine Überschriften.
 
 Daten von heute:
 """
 
 SYSTEM_ENTWURF = """Du schreibst Antwortentwürfe auf E-Mails im Namen der Geschäftsführung eines Sanitätshauses.
-Höflich, kurz, sachlich, auf Deutsch. Erfinde keine Fakten, Preise oder Termine: wo eine Angabe fehlt, setze einen
+Höflich, kurz, sachlich, auf Deutsch. Kurze Sätze, keine langen Satzketten. Erfinde keine Fakten, Preise oder Termine: wo eine Angabe fehlt, setze einen
 Platzhalter in eckigen Klammern, z. B. [Liefertermin]. Gib nur den Text der Mail aus (Anrede bis Gruß), ohne Betreffzeile."""
 
 
