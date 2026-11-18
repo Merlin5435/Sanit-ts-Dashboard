@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fragen an den Chef</title>
+<title>Offene Fragen</title>
 <style>
 :root{
   --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
@@ -17,7 +17,7 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--text);font:15px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
-.wrap{max-width:1040px;margin:0 auto;padding:36px 16px 64px}
+.wrap{max-width:760px;margin:0 auto;padding:36px 16px 64px}
 header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
 h1,h2{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:-.01em}
 h1{font-size:32px}
@@ -26,16 +26,16 @@ h1{font-size:32px}
 .progress small{color:var(--muted);font-size:13px}
 .bar{height:6px;border-radius:999px;background:var(--sunk);overflow:hidden;margin-top:6px}
 .bar i{display:block;height:100%;width:0;background:var(--good);transition:width .2s}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.grid{display:flex;flex-direction:column;gap:16px;max-width:760px;counter-reset:frage}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 8px}
-.card.first{grid-column:1/-1;border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
 .card h2{font-size:19px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .card h2 .tag{font-family:var(--sans);font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
-.card.first ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
 ul{list-style:none;margin:0;padding:0}
 li{border-top:1px solid var(--line);padding:10px 0}
-li:first-child,.card.first li:nth-child(2){border-top:0}
+li:first-child{border-top:0}
 label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+li{counter-increment:frage}
+.q::before{content:counter(frage) ". ";color:var(--accent);font-family:var(--serif);font-weight:500;margin-right:2px}
 input[type=checkbox]{width:18px;height:18px;margin:2px 0 0;accent-color:var(--good);flex:none}
 .q{font-weight:600}
 .h{display:block;color:var(--muted);font-size:13px;font-weight:400;margin-top:2px}
@@ -44,11 +44,10 @@ li.done .q{color:var(--faint);text-decoration:line-through}
 .a:focus{border-bottom-color:var(--accent)}
 .a::placeholder{color:var(--faint)}
 footer{margin-top:20px;color:var(--muted);font-size:13px}
-@media (max-width:760px){.grid,.card.first ul{grid-template-columns:1fr}.card.first li:nth-child(2){border-top:1px solid var(--line)}}
-@media print{
+@media (max-width:760px){.grid,@media print{
   body{background:#fff;color:#000;font-size:12px}
   .wrap{padding:0}.progress{display:none}
-  .grid{gap:10px}.card{break-inside:avoid;border-color:#bbb;padding:12px 12px 4px}
+  .grid{gap:10px;max-width:none}.card{break-inside:avoid;border-color:#bbb;padding:12px 12px 4px}
   .a{border-bottom:1px solid #999}.a::placeholder{color:transparent}
 }
 </style>
@@ -56,18 +55,11 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Fragen an den Chef</h1><div class="sub">KI-Dashboard · Stand 18.11.2026 · Antworten direkt eintragen</div></div>
+    <div><h1>Offene Fragen</h1><div class="sub">KI-Dashboard · Stand 18.11.2026 · Antworten direkt eintragen</div></div>
     <div class="progress"><small id="count">0 von 0 geklärt</small><div class="bar"><i id="fill"></i></div></div>
   </header>
 
   <div class="grid">
-    <section class="card first">
-      <h2>Zuerst klären <span class="tag">wichtig</span></h2>
-      <ul>
-        <li><label><input type="checkbox"><span><span class="q">KI-Hotline: Welcher Anbieter – und läuft sie über san6?</span><span class="h">san6 hat eine „VoiceBot“-Schnittstelle. Dann kommen Anliegen automatisch ins Dashboard.</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Firmenserver: Windows oder Linux, läuft er rund um die Uhr?</span><span class="h">Darf ein Programm drauf (ca. 2 GB RAM) und ins Internet?</span></span></label><input class="a" placeholder="Antwort …"></li>
-      </ul>
-    </section>
 
     <section class="card">
       <h2>Ansprechpartner</h2>
@@ -82,6 +74,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
     <section class="card">
       <h2>san6</h2>
       <ul>
+        <li><label><input type="checkbox"><span><span class="q">KI-Hotline: Welcher Anbieter – und läuft sie über san6?</span><span class="h">san6 hat eine „VoiceBot“-Schnittstelle. Dann kommen Anliegen automatisch ins Dashboard.</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Wer legt den API-Zugang an?</span><span class="h">Vorbereitung → API-Schnittstelle, nur Lesefunktionen</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Läuft der Webservice bei uns, ohne Zusatzkosten?</span><span class="h">Laut Doku im san6 enthalten – nur bestätigen</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Sind „erlaubte IPs“ gesetzt?</span><span class="h">Dann muss die Server-IP eingetragen werden</span></span></label><input class="a" placeholder="Antwort …"></li>
@@ -109,8 +102,9 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
     </section>
 
     <section class="card">
-      <h2>Sein PC</h2>
+      <h2>Server &amp; PC</h2>
       <ul>
+        <li><label><input type="checkbox"><span><span class="q">Firmenserver: Windows oder Linux, läuft er rund um die Uhr?</span><span class="h">Darf ein Programm drauf (ca. 2 GB RAM) und ins Internet?</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Windows oder Mac?</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Darf ein Programm mit Autostart installiert werden?</span><span class="h">Evtl. braucht es die IT</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Nur im Büro oder auch von unterwegs?</span></span></label><input class="a" placeholder="Antwort …"></li>
@@ -133,7 +127,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
 </div>
 <script>
 (function(){
-  var KEY='fragen-chef-v1', state={};
+  var KEY='offene-fragen-v2', state={};
   try{state=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
   var boxes=[].slice.call(document.querySelectorAll('input[type=checkbox]'));
   var answers=[].slice.call(document.querySelectorAll('.a'));
