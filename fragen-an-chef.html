@@ -33,6 +33,8 @@ h1{font-size:32px}
 ul{list-style:none;margin:0;padding:0}
 li{border-top:1px solid var(--line);padding:10px 0}
 li:first-child{border-top:0}
+.part{margin:12px 0 -4px}.part:first-child{margin-top:0}
+.part h2{font-size:24px}.part p{margin:2px 0 0;color:var(--muted);font-size:14px}
 label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
 li{counter-increment:frage}
 .q::before{content:counter(frage) ". ";color:var(--accent);font-family:var(--serif);font-weight:500;margin-right:2px}
@@ -60,7 +62,35 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
   </header>
 
   <div class="grid">
+    <div class="part"><h2>Teil 1 · Testversion</h2><p>Grundgerüst des Programms mit Beispieldaten – dafür reicht das hier.</p></div>
+    <section class="card">
+      <h2>Umfang &amp; Inhalt</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">KI-Hotline: Welcher Anbieter – und läuft sie über san6?</span><span class="h">san6 hat eine „VoiceBot“-Schnittstelle. Dann kommen Anliegen automatisch ins Dashboard.</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Sind offene Forderungen an Krankenkassen wichtig?</span><span class="h">Die Schnittstelle liefert nur Patientenrechnungen</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Was soll immer ganz oben stehen – und was nie?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Welche Filialen und Mitarbeiter gibt es?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Aufgaben direkt an Mitarbeiter weitergeben können?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Bis wann soll eine erste Version laufen?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
 
+    <section class="card">
+      <h2>KI</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Claude-Konto auf die Firma mit Prepaid-Guthaben?</span><span class="h">Für den Test reichen 5–10 € Guthaben. Ohne Konto wird die KI erst simuliert.</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Keine Patientennamen, Diagnosen oder Versichertennummern an die KI – passt das?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Sein PC</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Windows oder Mac?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <div class="part"><h2>Teil 2 · Vollversion</h2><p>Erst nötig, wenn das Programm an die echten Systeme angeschlossen wird.</p></div>
     <section class="card">
       <h2>Ansprechpartner</h2>
       <ul>
@@ -74,11 +104,9 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
     <section class="card">
       <h2>san6</h2>
       <ul>
-        <li><label><input type="checkbox"><span><span class="q">KI-Hotline: Welcher Anbieter – und läuft sie über san6?</span><span class="h">san6 hat eine „VoiceBot“-Schnittstelle. Dann kommen Anliegen automatisch ins Dashboard.</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Wer legt den API-Zugang an?</span><span class="h">Vorbereitung → API-Schnittstelle, nur Lesefunktionen</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Läuft der Webservice bei uns, ohne Zusatzkosten?</span><span class="h">Laut Doku im san6 enthalten – nur bestätigen</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Sind „erlaubte IPs“ gesetzt?</span><span class="h">Dann muss die Server-IP eingetragen werden</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Sind offene Forderungen an Krankenkassen wichtig?</span><span class="h">Die Schnittstelle liefert nur Patientenrechnungen</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Hat der Kollege das Gateway schon am echten san6 getestet?</span></span></label><input class="a" placeholder="Antwort …"></li>
       </ul>
     </section>
@@ -93,11 +121,9 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
     </section>
 
     <section class="card">
-      <h2>KI &amp; Datenschutz</h2>
+      <h2>Datenschutz</h2>
       <ul>
-        <li><label><input type="checkbox"><span><span class="q">Claude-Konto auf die Firma mit Prepaid-Guthaben?</span><span class="h">Firmenkarte, festes Limit, ca. 10–50 € im Monat</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Stimmt der Datenschutzbeauftragte zu?</span><span class="h">Vertrag zur Auftragsverarbeitung prüfen, Verarbeitung evtl. außerhalb der EU</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Keine Patientennamen, Diagnosen oder Versichertennummern an die KI – passt das?</span></span></label><input class="a" placeholder="Antwort …"></li>
       </ul>
     </section>
 
@@ -105,20 +131,9 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
       <h2>Server &amp; PC</h2>
       <ul>
         <li><label><input type="checkbox"><span><span class="q">Firmenserver: Windows oder Linux, läuft er rund um die Uhr?</span><span class="h">Darf ein Programm drauf (ca. 2 GB RAM) und ins Internet?</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Windows oder Mac?</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Darf ein Programm mit Autostart installiert werden?</span><span class="h">Evtl. braucht es die IT</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Nur im Büro oder auch von unterwegs?</span></span></label><input class="a" placeholder="Antwort …"></li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>Inhalt &amp; Zeitplan</h2>
-      <ul>
-        <li><label><input type="checkbox"><span><span class="q">Was soll immer ganz oben stehen – und was nie?</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Welche Filialen und Mitarbeiter gibt es?</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Aufgaben direkt an Mitarbeiter weitergeben können?</span></span></label><input class="a" placeholder="Antwort …"></li>
         <li><label><input type="checkbox"><span><span class="q">Abgleich um 5 Uhr – auch am Wochenende?</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Bis wann soll eine erste Version laufen?</span></span></label><input class="a" placeholder="Antwort …"></li>
       </ul>
     </section>
   </div>
@@ -127,7 +142,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
 </div>
 <script>
 (function(){
-  var KEY='offene-fragen-v2', state={};
+  var KEY='offene-fragen-v3', state={};
   try{state=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
   var boxes=[].slice.call(document.querySelectorAll('input[type=checkbox]'));
   var answers=[].slice.call(document.querySelectorAll('.a'));
