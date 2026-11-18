@@ -12,9 +12,30 @@ WICHTIGSTE FRAGEN
        - Wer ist Ansprechpartner dafür?
 
 [ ] 2. Firmenserver: Was läuft dort?
-       - Windows Server oder Linux? Welche Version?
+       - Steht der Server bei uns im Haus oder bei einem Dienstleister / in der Cloud?
+       - Betriebssystem: Windows Server (welche Version, z. B. 2019/2022) oder Linux?
+       - Läuft er rund um die Uhr, also auch um 5 Uhr morgens?
+       - Läuft san6 auf demselben Server, oder kann der Server san6 im Netzwerk erreichen?
+       - Darf ein zusätzliches Programm darauf laufen? Ist noch Platz frei
+         (grob: 2 GB Arbeitsspeicher, 10 GB Festplatte reichen)?
+       - Darf der Server ins Internet (zu Microsoft 365 und zur Claude-API)?
        - Darf dort Docker installiert werden? (Sonst geht es auch ohne, nur etwas mehr Aufwand.)
-       - Wer betreut den Server (eigene IT oder externer Dienstleister)?
+       - Wer betreut den Server (eigene IT oder externer Dienstleister), und wie bekomme ich
+         Zugang zum Einrichten (Fernwartung, Benutzerkonto)?
+
+
+ANSPRECHPARTNER – WER IST WOFÜR ZUSTÄNDIG?
+------------------------------------------
+Gemeint ist: Wen darf ich direkt anrufen/anschreiben, wenn ich etwas brauche?
+Bitte jeweils Name + Telefon/Mail notieren.
+
+[ ] san6:       Wer kennt sich bei uns mit san6 aus und hat Admin-Rechte?
+                (Die Person legt den API-Zugang an.) Und wer ist unser Kontakt bei TopM?
+[ ] Microsoft:  Wer verwaltet unsere E-Mail-Konten / Microsoft 365?
+                (Das ist meist die IT oder ein externer IT-Dienstleister.)
+[ ] Datenschutz: Wer ist unser Datenschutzbeauftragter? (Steht oft im Impressum
+                oder in der Datenschutzerklärung der Website.)
+[ ] Server/IT:  Wer betreut Server und PCs?
 
 
 SAN6
@@ -46,12 +67,17 @@ OUTLOOK / MICROSOFT 365
 KI / CLAUDE / DATENSCHUTZ
 -------------------------
 
-[ ] 12. Darf die Firma ein Konto bei Anthropic (Claude-API) anlegen? Wer macht das,
-        und mit welcher Firmenkreditkarte / Rechnung?
+[ ] 12. Claude-API-Konto: Okay, dass wir unter console.anthropic.com ein Konto
+        auf den Firmennamen anlegen und Guthaben im Voraus aufladen (z. B. 20 €)?
+        - Mit welcher Firmenkreditkarte? Rechnungen gehen an die Firma (Buchhaltung).
+        - Automatisches Nachladen bleibt AUS, zusätzlich wird ein Monatslimit gesetzt.
+        - Das ist NICHT dasselbe wie ein Claude-Pro-Abo; das Abo funktioniert für Programme nicht.
 [ ] 13. Monatliches Budget für die KI? (Schätzung bei einem Durchlauf am Morgen plus
         Fragen über den Tag: grob 10–50 € im Monat, wird nach dem Test genauer.)
-[ ] 14. Datenschutz: Gibt es einen Datenschutzbeauftragten? Er sollte zustimmen.
-        Mit Anthropic muss ein Vertrag zur Auftragsverarbeitung (AVV/DPA) geschlossen werden.
+[ ] 14. Datenschutz: Gibt es einen Datenschutzbeauftragten (intern oder extern)?
+        Er sollte zustimmen. Laut Anthropic ist der Vertrag zur Auftragsverarbeitung (DPA)
+        Teil der geschäftlichen Nutzungsbedingungen der API. Der Datenschutzbeauftragte
+        sollte das prüfen und ob die Datenverarbeitung außerhalb der EU okay ist.
 [ ] 15. Welche Daten dürfen an die KI? Vorschlag: Beträge, Kostenträger, Lieferanten,
         Betreff von Mails, Anzahl Anrufe – aber KEINE Patientennamen, Diagnosen oder
         Versichertennummern (die werden vorher durch Kürzel ersetzt).
