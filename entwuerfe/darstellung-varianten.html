@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Darstellung Varianten</title>
+<style>
+:root{
+  --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
+  --line:#e4e1d8; --accent:#c4633f; --accent-soft:#f6e6de; --good:#4f7a4a; --good-soft:#e5eee2;
+  --warn:#a8741a; --warn-soft:#f5ecd9; --bad:#b0412e; --bad-soft:#f6e1dc; --grau:#8a867d; --grau-soft:#ebe8e0;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,ui-serif,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a;
+  --warn:#d8a650; --warn-soft:#3a3122; --bad:#e3826f; --bad-soft:#3d2723; --grau:#8f8b82; --grau-soft:#33322e; color-scheme:dark}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14.5px/1.45 var(--sans);-webkit-font-smoothing:antialiased;padding:24px}
+h2,h3{font-family:var(--serif);font-weight:500;margin:0}
+.variante{max-width:860px;margin:0 auto 40px}
+.vlabel{font-size:13px;color:var(--muted);margin:0 0 8px;letter-spacing:.04em;text-transform:uppercase}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tile>.kopf{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.tile>.kopf h3{font-size:17px}
+small{color:var(--muted)}
+.d{--c:var(--bad);--cs:var(--bad-soft)} .h{--c:var(--warn);--cs:var(--warn-soft)} .w{--c:var(--grau);--cs:var(--grau-soft)}
+.tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:999px;background:var(--sunk);color:var(--muted)}
+.ico{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);display:inline-grid;place-items:center;font-size:13px;padding:0}
+.icos{display:flex;gap:4px}
+.summary{background:var(--accent-soft);border-radius:10px;padding:9px 12px;font-family:var(--serif);font-size:15.5px;margin-bottom:12px}
+
+/* A: To-do-Liste */
+.a li{list-style:none;display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:9px;border-left:4px solid var(--c);background:var(--sunk);margin-bottom:6px}
+.a ul{padding:0;margin:0}
+.a .nr{width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--bg);font-size:12px;font-weight:700;display:grid;place-items:center}
+.a .t{font-weight:600}
+.a .t small{font-weight:400;margin-left:8px}
+.a li.auf{grid-template-rows:auto auto}
+.a .mehr{grid-column:2/-1;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:6px}
+
+/* B: Ampel-Spalten */
+.b .spalten{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.b .spalte{background:var(--sunk);border-radius:10px;padding:8px}
+.b .sk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--c);margin:2px 4px 8px}
+.b .sk i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.b .karte{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.b .karte .t{font-weight:600;font-size:13.5px;line-height:1.35}
+.b .karte .f{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+
+/* C: Karten */
+.c .raster{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.c .karte{border-radius:10px;padding:10px 12px;background:var(--cs);border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
+.c .oben{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.c .stufe{font-size:11.5px;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.05em}
+.c .t{font-weight:600;line-height:1.35}
+.c .why{color:var(--muted);font-size:13px;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.c .unten{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+</style>
+</head>
+<body>
+
+<section class="variante" id="A">
+  <p class="vlabel">Variante A · To-do-Liste mit Farbstreifen</p>
+  <div class="tile a">
+    <div class="kopf"><h3>Am wichtigsten heute</h3><small>von der KI sortiert · 39 geprüft</small></div>
+    <div class="summary">Zwei Beschwerden über den Techniker und die verspätete Medi-Lieferung zuerst.</div>
+    <ul>
+      <li class="d auf"><span class="nr">1</span><span class="t">Techniker nicht erschienen: Beschwerden Walter Kern und Karl Winter, Pflegebett Walter Kern defekt</span><span class="icos"><button class="ico" title="Erledigt">✓</button><button class="ico" title="Später">⏱</button></span>
+        <div class="mehr">Walter Kern und Karl Winter haben sich beschwert, weil der Techniker gestern nicht wie vereinbart kam. Bei Walter Kern lässt sich zudem das Pflegebett nicht mehr hochfahren. Lassen Sie heute beide Kunden zurückrufen. <span class="tag">Hotline</span> <span class="tag">3 Vorgänge</span></div></li>
+      <li class="d"><span class="nr">2</span><span class="t">Medi-Lieferung verspätet – Peter Lang wartet seit zwei Wochen <small>san6 · Mail</small></span><span class="icos"><button class="ico" title="Erledigt">✓</button><button class="ico" title="Später">⏱</button></span></li>
+      <li class="h"><span class="nr">3</span><span class="t">Angebot 14 Pflegebetten für Fr. Jansen beantworten <small>Mail</small></span><span class="icos"><button class="ico" title="Antwort entwerfen">✎</button><button class="ico" title="Erledigt">✓</button><button class="ico" title="Später">⏱</button></span></li>
+      <li class="h"><span class="nr">4</span><span class="t">11 fehlende Rezepte nachfordern <small>san6</small></span><span class="icos"><button class="ico" title="Erledigt">✓</button><button class="ico" title="Später">⏱</button></span></li>
+      <li class="w"><span class="nr">5</span><span class="t">Kassenberichte September für das Steuerbüro <small>Mail</small></span><span class="icos"><button class="ico" title="Antwort entwerfen">✎</button><button class="ico" title="Erledigt">✓</button><button class="ico" title="Später">⏱</button></span></li>
+    </ul>
+    <small>Ein Klick auf eine Zeile klappt Begründung und Details auf (hier bei Punkt 1 gezeigt).</small>
+  </div>
+</section>
+
+<section class="variante" id="B">
+  <p class="vlabel">Variante B · Ampel-Spalten</p>
+  <div class="tile b">
+    <div class="kopf"><h3>Am wichtigsten heute</h3><small>von der KI sortiert · 39 geprüft</small></div>
+    <div class="summary">Zwei Beschwerden über den Techniker und die verspätete Medi-Lieferung zuerst.</div>
+    <div class="spalten">
+      <div class="spalte d"><div class="sk"><i></i>Dringend</div>
+        <div class="karte"><div class="t">Techniker nicht erschienen – 2 Beschwerden, Pflegebett defekt</div><div class="f"><span class="tag">Hotline</span><span class="icos"><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+        <div class="karte"><div class="t">Medi-Lieferung verspätet, Kunde wartet 2 Wochen</div><div class="f"><span class="tag">san6 · Mail</span><span class="icos"><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+      </div>
+      <div class="spalte h"><div class="sk"><i></i>Heute</div>
+        <div class="karte"><div class="t">Angebot 14 Pflegebetten beantworten</div><div class="f"><span class="tag">Mail</span><span class="icos"><button class="ico">✎</button><button class="ico">✓</button></span></div></div>
+        <div class="karte"><div class="t">11 fehlende Rezepte nachfordern</div><div class="f"><span class="tag">san6</span><span class="icos"><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+      </div>
+      <div class="spalte w"><div class="sk"><i></i>Diese Woche</div>
+        <div class="karte"><div class="t">Kassenberichte September fürs Steuerbüro</div><div class="f"><span class="tag">Mail</span><span class="icos"><button class="ico">✎</button><button class="ico">✓</button></span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variante" id="C">
+  <p class="vlabel">Variante C · Farbige Karten</p>
+  <div class="tile c">
+    <div class="kopf"><h3>Am wichtigsten heute</h3><small>von der KI sortiert · 39 geprüft</small></div>
+    <div class="summary">Zwei Beschwerden über den Techniker und die verspätete Medi-Lieferung zuerst.</div>
+    <div class="raster">
+      <div class="karte d"><div class="oben"><span class="stufe">1 · Dringend</span><span class="tag">Hotline</span></div>
+        <div class="t">Techniker nicht erschienen: 2 Beschwerden, Pflegebett defekt</div>
+        <div class="why">Walter Kern und Karl Winter haben sich beschwert, weil der Techniker gestern nicht kam. Beide heute zurückrufen.</div>
+        <div class="unten"><small>3 Vorgänge</small><span class="icos"><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+      <div class="karte d"><div class="oben"><span class="stufe">2 · Dringend</span><span class="tag">san6 · Mail</span></div>
+        <div class="t">Medi-Lieferung verspätet</div>
+        <div class="why">Peter Lang wartet seit zwei Wochen, Medi hat KW 48 angekündigt.</div>
+        <div class="unten"><small>2 Vorgänge</small><span class="icos"><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+      <div class="karte h"><div class="oben"><span class="stufe">3 · Heute</span><span class="tag">Mail</span></div>
+        <div class="t">Angebot 14 Pflegebetten beantworten</div>
+        <div class="why">Große Verkaufschance, liegt seit dem 16.11. unbeantwortet.</div>
+        <div class="unten"><small>1 Mail</small><span class="icos"><button class="ico">✎</button><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+      <div class="karte h"><div class="oben"><span class="stufe">4 · Heute</span><span class="tag">san6</span></div>
+        <div class="t">11 fehlende Rezepte nachfordern</div>
+        <div class="why">Blockieren die Abrechnung, 5 davon älter als 14 Tage.</div>
+        <div class="unten"><small>11 Vorgänge</small><span class="icos"><button class="ico">✓</button><button class="ico">⏱</button></span></div></div>
+    </div>
+  </div>
+</section>
+</body>
+</html>
