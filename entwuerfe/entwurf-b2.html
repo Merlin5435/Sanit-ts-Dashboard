@@ -82,8 +82,8 @@ header h1{font-size:30px}
 
 /* untere Kacheln */
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
-.kpis .card{padding:14px 16px}
-.kpis .lbl{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.kpis .card{padding:14px 16px;min-width:0}
+.kpis .lbl{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:4px 8px;flex-wrap:wrap}
 .kpis .big{font-family:var(--serif);font-size:24px;margin-top:2px}
 .lower{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
 .lower h3{font-size:17px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -100,7 +100,7 @@ header h1{font-size:30px}
   <header>
     <div><small>Mittwoch, 18. November 2026</small><h1>Guten Morgen.</h1></div>
     <div class="sync" aria-label="Abgleich heute früh">
-      <span>san6 05:02</span><span>Outlook 05:03</span><span>KI-Hotline 05:03</span><span>Assistent 05:04</span>
+      <span>san6 05:02</span><span>Outlook 05:03</span><span>Assistent 05:04</span>
       <button class="theme" id="theme">Hell / Dunkel</button>
     </div>
   </header>
@@ -108,17 +108,17 @@ header h1{font-size:30px}
   <div class="top">
     <section class="card focus">
       <div class="focus-head"><h2>Am wichtigsten heute</h2><small>vom Assistenten sortiert · 9 Punkte geprüft</small></div>
-      <p class="summary">Liquidität ist heute das Hauptthema: drei Kostenträger sind über 60 Tage im Verzug. Danach kommen die verspätete Kompressionsware, über die sich Kunden schon beschweren, und ein Angebot, das seit Montag auf Antwort wartet.</p>
+      <p class="summary">Heute bremsen vor allem fehlende Rezepte: 7 Versorgungen können nicht abgerechnet werden, weil das Rezept seit über zwei Wochen aussteht. Danach kommen die verspätete Kompressionsware, nach der Kunden schon bei der Hotline gefragt haben, und ein Angebot, das seit Montag auf Antwort wartet.</p>
       <ul class="items" id="items">
         <li><span class="n">1</span>
-          <div><div class="title">AOK Nordost wegen Sammelabrechnung anrufen</div>
-            <div class="why">18.420 € seit 61 Tagen offen – der größte Einzelposten. Die Abrechnungsstelle ist laut letzter Mail vormittags erreichbar.</div>
-            <div class="meta"><span class="pill bad">dringend</span><span class="pill">san6 · Offene Posten</span><span class="pill">Outlook · Mail vom 03.11.</span></div></div>
+          <div><div class="title">7 fehlende Rezepte bei den Ärzten nachfordern</div>
+            <div class="why">Seit über 14 Tagen angefordert, noch nicht eingegangen. 4 davon betreffen dieselbe Praxis (Dr. Brandt) – ein Anruf klärt also mehr als die Hälfte. Dazu laufen heute 3 Wiedervorlagen „Rezept fehlt“ ab.</div>
+            <div class="meta"><span class="pill bad">dringend</span><span class="pill">san6 · Rezeptanforderungen</span><span class="pill">san6 · Wiedervorlagen</span></div></div>
           <div class="acts"><button data-done>Erledigt</button><button>Später</button></div></li>
         <li><span class="n">2</span>
           <div><div class="title">Lieferrückstand Medi Kompression klären</div>
-            <div class="why">12 Positionen offen. Gestern haben 2 Kunden deswegen bei der Hotline angerufen. Medi hat per Mail KW 48 angekündigt – das wäre für 4 Kunden zu spät.</div>
-            <div class="meta"><span class="pill warn">heute</span><span class="pill">san6 · Lieferrückstände</span><span class="pill">KI-Hotline</span><span class="pill">Outlook</span></div></div>
+            <div class="why">12 Positionen im Rückstand. Gestern haben 2 Kunden deswegen bei der Hotline nachgefragt (offene Orgas). Medi hat per Mail KW 48 angekündigt – das wäre für 4 Kunden zu spät.</div>
+            <div class="meta"><span class="pill warn">heute</span><span class="pill">san6 · Lieferrückstände</span><span class="pill">san6 · Orgas der Hotline</span><span class="pill">Outlook · Mail</span></div></div>
           <div class="acts"><button data-done>Erledigt</button><button>Später</button></div></li>
         <li><span class="n">3</span>
           <div><div class="title">Angebot Pflegeheim Am Stadtpark beantworten</div>
@@ -127,8 +127,8 @@ header h1{font-size:30px}
           <div class="acts"><button data-done>Erledigt</button><button>Antwort entwerfen</button></div></li>
         <li><span class="n">4</span>
           <div><div class="title">5 Rückrufwünsche aus der KI-Hotline verteilen</div>
-            <div class="why">3 × Terminwunsch (Filiale Nord), 2 × Lieferstatus. Vorschlag: an Fr. Krause, sie hat heute Vormittag frei.</div>
-            <div class="meta"><span class="pill">diese Woche</span><span class="pill">KI-Hotline</span><span class="pill">san6 · Terminbelegung</span></div></div>
+            <div class="why">3 × Terminwunsch (Filiale Nord), 2 × Reparatur. Vorschlag: an Fr. Krause, sie hat laut Kalender heute Vormittag keine Termine.</div>
+            <div class="meta"><span class="pill">diese Woche</span><span class="pill">san6 · Orgas der Hotline</span><span class="pill">san6 · Termine</span></div></div>
           <div class="acts"><button data-done>Erledigt</button><button>Später</button></div></li>
       </ul>
       <button class="more">+ 5 weitere Punkte mit niedriger Priorität</button>
@@ -137,10 +137,10 @@ header h1{font-size:30px}
     <div class="side">
       <section class="card chat">
         <h3>Assistent</h3>
-        <div class="msg">Soll ich für die AOK eine Übersicht aller offenen Belege vorbereiten, damit Sie beim Anruf alles vor sich haben?</div>
+        <div class="msg">Soll ich die fehlenden Rezepte nach Praxis sortiert auflisten, damit Sie oder das Team jede Praxis nur einmal anrufen müssen?</div>
         <div class="sugs">
-          <button>Ja, Belegübersicht AOK erstellen</button>
-          <button>Welche Kostenträger zahlen am langsamsten?</button>
+          <button>Ja, Liste nach Praxis erstellen</button>
+          <button>Welche Privatrechnungen sind schon gemahnt?</button>
           <button>Antwort an Fr. Jansen entwerfen</button>
         </div>
         <div class="ask"><input placeholder="Frage stellen …" aria-label="Frage an den Assistenten"><button aria-label="Senden">↑</button></div>
@@ -154,20 +154,20 @@ header h1{font-size:30px}
 
   <div class="kpis">
     <div class="card"><div class="lbl">Umsatz November <span class="pill">−4 % VJ</span></div><div class="big num">142.300 €</div></div>
-    <div class="card"><div class="lbl">Offene Posten <span class="pill bad">31 % &gt; 60 T</span></div><div class="big num">96.850 €</div></div>
+    <div class="card"><div class="lbl">Offene Patientenrechnungen <span class="pill bad">9 gemahnt</span></div><div class="big num">18.430 €</div></div>
     <div class="card"><div class="lbl">Termine heute <span class="pill good">voll</span></div><div class="big num">23</div></div>
-    <div class="card"><div class="lbl">KI-Hotline gestern <span class="pill acc">5 Rückrufe</span></div><div class="big num">37</div></div>
+    <div class="card"><div class="lbl">Fehlende Rezepte <span class="pill warn">7 &gt; 14 Tage</span></div><div class="big num">19</div></div>
   </div>
 
   <div class="lower">
     <section class="card"><h3>Postfach <small>4 brauchen Antwort</small></h3>
       <ul class="rows"><li><span>Fr. Jansen – Angebot Pflegebetten</span><small>Mo</small></li><li><span>Medi GmbH – Liefertermin KW 48</span><small>Di</small></li><li><span>Steuerbüro – Unterlagen Q3</span><small>Di</small></li></ul></section>
-    <section class="card"><h3>KI-Hotline gestern</h3>
-      <ul class="rows"><li><span>Terminwünsche</span><span class="num">14</span></li><li><span>Lieferstatus</span><span class="num">11</span></li><li><span>Beschwerden</span><span class="num">2</span></li><li><span>Sonstiges</span><span class="num">10</span></li></ul></section>
-    <section class="card"><h3>Offene Posten nach Alter</h3>
-      <div class="age"><span style="width:38%;background:var(--good)"></span><span style="width:31%;background:var(--warn)"></span><span style="width:31%;background:var(--bad)"></span></div>
-      <div class="legend"><span><i style="background:var(--good)"></i>0–30 T</span><span><i style="background:var(--warn)"></i>31–60 T</span><span><i style="background:var(--bad)"></i>&gt; 60 T</span></div>
-      <ul class="rows" style="margin-top:8px"><li><span>AOK Nordost</span><span class="num">24.110 €</span></li><li><span>BARMER</span><span class="num">11.940 €</span></li><li><span>TK</span><span class="num">8.320 €</span></li></ul></section>
+    <section class="card"><h3>Hotline-Anliegen offen <small>aus san6-Orgas</small></h3>
+      <ul class="rows"><li><span>Terminwunsch</span><span class="num">3</span></li><li><span>Reparatur</span><span class="num">2</span></li><li><span>Lieferstatus</span><span class="num">2</span></li><li><span>Neukunde</span><span class="num">1</span></li></ul></section>
+    <section class="card"><h3>Offene Patientenrechnungen</h3>
+      <div class="age"><span style="width:52%;background:var(--good)"></span><span style="width:27%;background:var(--warn)"></span><span style="width:21%;background:var(--bad)"></span></div>
+      <div class="legend"><span><i style="background:var(--good)"></i>noch nicht fällig</span><span><i style="background:var(--warn)"></i>überfällig</span><span><i style="background:var(--bad)"></i>gemahnt</span></div>
+      <ul class="rows" style="margin-top:8px"><li><span>noch nicht fällig</span><span class="num">9.580 €</span></li><li><span>überfällig, nicht gemahnt</span><span class="num">4.980 €</span></li><li><span>gemahnt (9 Rechnungen)</span><span class="num">3.870 €</span></li></ul></section>
   </div>
 </div>
 <script>
