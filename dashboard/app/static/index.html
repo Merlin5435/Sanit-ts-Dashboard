@@ -395,6 +395,7 @@ async function protokoll() {
 
 async function knopf(btn, text, fn) {
   const alt = btn.textContent; btn.disabled = true; btn.textContent = text;
+  $("zusammenfassung").textContent = "Der Abgleich läuft – die KI sortiert gerade die Daten …";
   try { await fn(); await laden(); } catch (e) { alert(e.message); }
   finally { btn.disabled = false; btn.textContent = alt; }
 }
@@ -404,6 +405,7 @@ $("b-protokoll").onclick = protokoll;
 $("b-weitere").onclick = () => { $("weitere").hidden = !$("weitere").hidden; };
 $("ask").onsubmit = (e) => { e.preventDefault(); fragen($("frage").value); };
 $("dlg-zu").onclick = () => $("dlg").close();
+$("zusammenfassung").textContent = "Der Abgleich läuft – die KI sortiert gerade die Daten von heute. Das kann beim ersten Start bis zu zwei Minuten dauern …";
 laden().catch(e => { $("hinweise").replaceChildren(h("div", {class: "fehler"}, "Dashboard konnte nicht geladen werden: " + e.message)); });
 </script>
 </body>
