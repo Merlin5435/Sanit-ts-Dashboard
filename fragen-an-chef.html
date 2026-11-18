@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fragen an den Chef</title>
+<style>
+:root{
+  --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
+  --line:#e4e1d8; --accent:#c4633f; --accent-soft:#f6e6de; --good:#4f7a4a; --good-soft:#e5eee2;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,ui-serif,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1f1e1c; --surface:#272623; --sunk:#2e2d29; --text:#ecebe6; --muted:#a8a49b; --faint:#7d7a72;
+  --line:#3a3934; --accent:#df8461; --accent-soft:#3d2a22; --good:#8fbb88; --good-soft:#26322a; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:36px 16px 64px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+h1,h2{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:-.01em}
+h1{font-size:32px}
+.sub{color:var(--muted);font-size:14px;margin-top:4px}
+.progress{min-width:180px}
+.progress small{color:var(--muted);font-size:13px}
+.bar{height:6px;border-radius:999px;background:var(--sunk);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--good);transition:width .2s}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 8px}
+.card.first{grid-column:1/-1;border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.card h2{font-size:19px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card h2 .tag{font-family:var(--sans);font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.card.first ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+ul{list-style:none;margin:0;padding:0}
+li{border-top:1px solid var(--line);padding:10px 0}
+li:first-child,.card.first li:nth-child(2){border-top:0}
+label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+input[type=checkbox]{width:18px;height:18px;margin:2px 0 0;accent-color:var(--good);flex:none}
+.q{font-weight:600}
+.h{display:block;color:var(--muted);font-size:13px;font-weight:400;margin-top:2px}
+li.done .q{color:var(--faint);text-decoration:line-through}
+.a{display:block;width:calc(100% - 28px);margin:6px 0 0 28px;border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--text);font:inherit;font-size:14px;padding:3px 0;outline:none}
+.a:focus{border-bottom-color:var(--accent)}
+.a::placeholder{color:var(--faint)}
+footer{margin-top:20px;color:var(--muted);font-size:13px}
+@media (max-width:760px){.grid,.card.first ul{grid-template-columns:1fr}.card.first li:nth-child(2){border-top:1px solid var(--line)}}
+@media print{
+  body{background:#fff;color:#000;font-size:12px}
+  .wrap{padding:0}.progress{display:none}
+  .grid{gap:10px}.card{break-inside:avoid;border-color:#bbb;padding:12px 12px 4px}
+  .a{border-bottom:1px solid #999}.a::placeholder{color:transparent}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Fragen an den Chef</h1><div class="sub">KI-Dashboard · Stand 18.11.2026 · Antworten direkt eintragen</div></div>
+    <div class="progress"><small id="count">0 von 0 geklärt</small><div class="bar"><i id="fill"></i></div></div>
+  </header>
+
+  <div class="grid">
+    <section class="card first">
+      <h2>Zuerst klären <span class="tag">wichtig</span></h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">KI-Hotline: Welcher Anbieter – und läuft sie über san6?</span><span class="h">san6 hat eine „VoiceBot“-Schnittstelle. Dann kommen Anliegen automatisch ins Dashboard.</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Firmenserver: Windows oder Linux, läuft er rund um die Uhr?</span><span class="h">Darf ein Programm drauf (ca. 2 GB RAM) und ins Internet?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Ansprechpartner</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">san6</span><span class="h">Wer hat Admin-Rechte? Wer ist unser Kontakt bei TopM?</span></span></label><input class="a" placeholder="Name, Telefon …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Microsoft 365 / E-Mail</span><span class="h">Meist IT oder externer Dienstleister</span></span></label><input class="a" placeholder="Name, Telefon …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Datenschutzbeauftragter</span><span class="h">Steht oft im Impressum der Website</span></span></label><input class="a" placeholder="Name, Telefon …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Server &amp; PCs</span></span></label><input class="a" placeholder="Name, Telefon …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>san6</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Wer legt den API-Zugang an?</span><span class="h">Vorbereitung → API-Schnittstelle, nur Lesefunktionen</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Läuft der Webservice bei uns, ohne Zusatzkosten?</span><span class="h">Laut Doku im san6 enthalten – nur bestätigen</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Sind „erlaubte IPs“ gesetzt?</span><span class="h">Dann muss die Server-IP eingetragen werden</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Sind offene Forderungen an Krankenkassen wichtig?</span><span class="h">Die Schnittstelle liefert nur Patientenrechnungen</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Hat der Kollege das Gateway schon am echten san6 getestet?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Microsoft 365</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Microsoft 365 oder eigener Exchange-Server?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Welche Postfächer und Kalender?</span><span class="h">Nur seiner oder auch Filialen / info@?</span></span></label><input class="a" placeholder="E-Mail-Adressen …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Okay, dass das Programm seine Mails liest?</span><span class="h">Nur lesen, nichts senden</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>KI &amp; Datenschutz</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Claude-Konto auf die Firma mit Prepaid-Guthaben?</span><span class="h">Firmenkarte, festes Limit, ca. 10–50 € im Monat</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Stimmt der Datenschutzbeauftragte zu?</span><span class="h">Vertrag zur Auftragsverarbeitung prüfen, Verarbeitung evtl. außerhalb der EU</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Keine Patientennamen, Diagnosen oder Versichertennummern an die KI – passt das?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Sein PC</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Windows oder Mac?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Darf ein Programm mit Autostart installiert werden?</span><span class="h">Evtl. braucht es die IT</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Nur im Büro oder auch von unterwegs?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Inhalt &amp; Zeitplan</h2>
+      <ul>
+        <li><label><input type="checkbox"><span><span class="q">Was soll immer ganz oben stehen – und was nie?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Welche Filialen und Mitarbeiter gibt es?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Aufgaben direkt an Mitarbeiter weitergeben können?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Abgleich um 5 Uhr – auch am Wochenende?</span></span></label><input class="a" placeholder="Antwort …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Bis wann soll eine erste Version laufen?</span></span></label><input class="a" placeholder="Antwort …"></li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>An TopM weitergeben: Wie wird der MD5-Anmeldecode genau berechnet (Kap. 3.3.2)? Bekommen wir Zugang zum Testserver? – Details: san6-pruefung.txt</footer>
+</div>
+<script>
+(function(){
+  var KEY='fragen-chef-v1', state={};
+  try{state=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+  var boxes=[].slice.call(document.querySelectorAll('input[type=checkbox]'));
+  var answers=[].slice.call(document.querySelectorAll('.a'));
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  function update(){
+    var n=boxes.filter(function(b){return b.checked}).length;
+    document.getElementById('count').textContent=n+' von '+boxes.length+' geklärt';
+    document.getElementById('fill').style.width=(100*n/boxes.length)+'%';
+  }
+  boxes.forEach(function(b,i){
+    b.id='c'+i; b.checked=!!state['c'+i];
+    b.closest('li').classList.toggle('done',b.checked);
+    b.addEventListener('change',function(){state['c'+i]=b.checked;b.closest('li').classList.toggle('done',b.checked);save();update();});
+  });
+  answers.forEach(function(a,i){
+    a.id='a'+i; a.value=state['a'+i]||'';
+    a.addEventListener('input',function(){state['a'+i]=a.value;save();});
+  });
+  update();
+})();
+</script>
+</body>
+</html>
