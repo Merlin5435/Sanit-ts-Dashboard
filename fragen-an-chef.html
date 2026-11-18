@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Offene Fragen</title>
+<title>Offene Punkte</title>
 <style>
 :root{
   --bg:#f5f4ef; --surface:#fffefb; --sunk:#efede6; --text:#1f1e1c; --muted:#6d6a63; --faint:#9a968d;
@@ -57,28 +57,12 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Offene Fragen</h1><div class="sub">KI-Dashboard · Stand 18.11.2026 · Antworten direkt eintragen</div></div>
+    <div><h1>Offene Punkte</h1><div class="sub">KI-Dashboard · Stand 18.11.2026 · Notizen direkt eintragen</div></div>
     <div class="progress"><small id="count">0 von 0 erledigt</small><div class="bar"><i id="fill"></i></div></div>
   </header>
 
   <div class="grid">
-    <div class="part"><h2>Teil 1 · Testversion</h2><p>Grundgerüst des Programms mit Beispieldaten – dafür reicht das hier.</p></div>
-    <section class="card">
-      <h2>Umfang &amp; Inhalt</h2>
-      <ul>
-        <li><label><input type="checkbox"><span><span class="q">KI-Hotline: Welcher Anbieter – und läuft sie über san6?</span><span class="h">san6 hat eine „VoiceBot“-Schnittstelle. Dann kommen Anliegen automatisch ins Dashboard.</span></span></label><input class="a" placeholder="Antwort …"></li>
-        <li><label><input type="checkbox"><span><span class="q">Sind offene Forderungen an Krankenkassen wichtig?</span><span class="h">Die Schnittstelle liefert nur Patientenrechnungen</span></span></label><input class="a" placeholder="Antwort …"></li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>Sein PC</h2>
-      <ul>
-        <li><label><input type="checkbox"><span><span class="q">Windows oder Mac?</span></span></label><input class="a" placeholder="Antwort …"></li>
-      </ul>
-    </section>
-
-    <div class="part"><h2>Teil 2 · Vollversion</h2><p>Für die Vollversion wird gebraucht:</p></div>
+    <div class="part"><h2>Für die Vollversion wird gebraucht</h2><p>Die Testversion läuft komplett mit simulierten Daten – dafür ist nichts nötig.</p></div>
     <section class="card">
       <h2>Ansprechpartner</h2>
       <ul>
@@ -92,6 +76,8 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
     <section class="card">
       <h2>san6</h2>
       <ul>
+        <li><label><input type="checkbox"><span><span class="q">Info: Anbieter der KI-Hotline und ob sie über san6 läuft</span><span class="h">san6 hat dafür eine „VoiceBot“-Schnittstelle</span></span></label><input class="a" placeholder="Notiz …"></li>
+        <li><label><input type="checkbox"><span><span class="q">Entscheidung: Sollen offene Forderungen an Krankenkassen ins Dashboard?</span><span class="h">Die san6-Schnittstelle liefert nur Patientenrechnungen – sonst bei TopM anfragen</span></span></label><input class="a" placeholder="Notiz …"></li>
         <li><label><input type="checkbox"><span><span class="q">API-Zugang in san6</span><span class="h">Vorbereitung → API-Schnittstelle, nur Lesefunktionen</span></span></label><input class="a" placeholder="Notiz …"></li>
         <li><label><input type="checkbox"><span><span class="q">Bestätigung, dass der Webservice bei uns läuft – ohne Zusatzkosten</span><span class="h">Laut Doku im san6 enthalten</span></span></label><input class="a" placeholder="Notiz …"></li>
         <li><label><input type="checkbox"><span><span class="q">Server-IP in den „erlaubten IPs“ eintragen</span><span class="h">Nur falls die Liste in san6 genutzt wird</span></span></label><input class="a" placeholder="Notiz …"></li>
@@ -119,6 +105,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
     <section class="card">
       <h2>Server &amp; PC</h2>
       <ul>
+        <li><label><input type="checkbox"><span><span class="q">Info: Windows oder Mac auf seinem PC</span></span></label><input class="a" placeholder="Notiz …"></li>
         <li><label><input type="checkbox"><span><span class="q">Firmenserver, der rund um die Uhr läuft und ins Internet darf</span><span class="h">Ca. 2 GB RAM frei · Info: Windows oder Linux</span></span></label><input class="a" placeholder="Notiz …"></li>
         <li><label><input type="checkbox"><span><span class="q">Erlaubnis, das Programm mit Autostart auf seinem PC zu installieren</span><span class="h">Evtl. braucht es die IT</span></span></label><input class="a" placeholder="Notiz …"></li>
         <li><label><input type="checkbox"><span><span class="q">Info: Nutzung nur im Büro oder auch unterwegs</span></span></label><input class="a" placeholder="Notiz …"></li>
@@ -131,7 +118,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px}
 </div>
 <script>
 (function(){
-  var KEY='offene-fragen-v4', state={};
+  var KEY='offene-fragen-v5', state={};
   try{state=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
   var boxes=[].slice.call(document.querySelectorAll('input[type=checkbox]'));
   var answers=[].slice.call(document.querySelectorAll('.a'));
