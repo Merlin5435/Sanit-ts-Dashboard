@@ -52,7 +52,23 @@ li{margin:4px 0}
 .next{counter-reset:n;list-style:none;padding:0}
 .next li{counter-increment:n;display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
 .next li::before{content:counter(n);font-family:var(--serif);color:var(--accent);width:18px;flex:none}
-@media (max-width:720px){.flow{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+.arch{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr) auto minmax(0,1fr);gap:10px;align-items:center;margin-bottom:8px}
+.arch .spalte{display:flex;flex-direction:column;gap:8px}
+.arch .titel{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.knoten{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+.knoten small{display:block;font-size:12.5px}
+.knoten.sub{margin-left:18px;border-style:dashed}
+.server{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:12px;padding:12px 14px}
+.server ol{margin:6px 0 0;padding-left:20px;font-size:14px}
+.server li{margin:3px 0}
+.pfeil{color:var(--accent);font-size:24px;line-height:1;text-align:center}
+.quellen{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quellen .box ul{font-size:14.5px}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--sunk);border-radius:5px;padding:1px 5px}
+.zeit{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;font-size:14.5px}
+.zeit b{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+.beispiel{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 16px;margin-top:12px;font-size:14.5px}
+@media (max-width:720px){.flow{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.arch{grid-template-columns:1fr}.pfeil{transform:rotate(90deg)}.quellen{grid-template-columns:1fr}}
 </style>
 
 <div class="wrap">
@@ -84,6 +100,79 @@ li{margin:4px 0}
       <tr><td>Claude (KI)</td><td>Claude-API von Anthropic</td><td><span class="pill ok">Standard</span></td><td>Firmenkonto, ca. 10–50 € / Monat</td></tr>
     </tbody>
   </table></div>
+
+  <h2>So werden die Quellen verbunden</h2>
+  <p>Das Programm läuft auf dem Firmenserver. Es fragt alle Quellen selbst ab, bringt die Daten in ein gemeinsames Format und führt sie zusammen. Der PC des Chefs zeigt nur das fertige Ergebnis an.</p>
+  <div class="arch" role="img" aria-label="Datenfluss: san6, Microsoft 365 und KI-Hotline liefern an den Firmenserver, der die Daten aufbereitet, an Claude schickt und das Ergebnis an das Dashboard auf dem PC gibt">
+    <div class="spalte"><div class="titel">Quellen</div>
+      <div class="knoten"><b>san6</b><small>TopM-Webservice</small></div>
+      <div class="knoten sub"><b>KI-Hotline</b><small>schreibt Anliegen ins san6</small></div>
+      <div class="knoten"><b>Microsoft 365</b><small>Mails und Kalender</small></div></div>
+    <div class="pfeil">→</div>
+    <div class="server"><div class="titel">Firmenserver · jeden Morgen 05:00</div><ol>
+      <li>Daten abholen und vereinheitlichen</li>
+      <li>Patientendaten durch Kürzel ersetzen</li>
+      <li>Vorgänge mit fester ID bilden</li>
+      <li>Claude sortiert und verknüpft</li>
+      <li>Ergebnis speichern, Namen wieder einsetzen</li></ol></div>
+    <div class="pfeil">→</div>
+    <div class="spalte"><div class="titel">Anzeige</div>
+      <div class="knoten"><b>Dashboard</b><small>startet beim Anmelden am PC</small></div>
+      <div class="knoten"><b>Claude</b><small>bekommt nur bereinigte Daten (Schritt 4)</small></div></div>
+  </div>
+
+  <h3 style="font-family:var(--serif);font-weight:500;font-size:19px;margin:28px 0 10px">Die Quellen im Einzelnen</h3>
+  <div class="quellen">
+    <div class="box"><h3>san6</h3><ul>
+      <li><b>Weg:</b> offizieller TopM-Webservice, im san6 enthalten. Abfragen über HTTPS, Antworten als XML.</li>
+      <li><b>Anmeldung:</b> eigenes „System“ für das Dashboard mit Passwort. Nur Lesefunktionen werden freigeschaltet.</li>
+      <li><b>Abgefragt werden:</b> Termine, Rechnungen, offene Patientenrechnungen, fehlende Rezepte, Wiedervorlagen, Lieferrückstände und offene Orgas.</li>
+      <li><b>Technik:</b> Das vorhandene Verbindungsprogramm (Gateway) übersetzt das XML in ein einheitliches Format.</li>
+      <li><b>Einrichtung:</b> im san6 unter <span class="code">Vorbereitung → API-Schnittstelle</span>. Falls dort „erlaubte IPs“ gesetzt sind, kommt die Server-Adresse dazu.</li></ul></div>
+    <div class="box"><h3>Microsoft 365</h3><ul>
+      <li><b>Weg:</b> Microsoft Graph, die offizielle Schnittstelle für Outlook. Das Outlook-Programm auf dem PC wird nicht gebraucht.</li>
+      <li><b>Anmeldung:</b> eine „App-Registrierung“ im Microsoft-365-Admin-Bereich. Das richtet der Admin einmal ein, ca. 15 Minuten.</li>
+      <li><b>Rechte:</b> Mails lesen und Kalender lesen. Senden nur, falls die Antwort-Funktion kommt.</li>
+      <li><b>Beschränkung:</b> Der Zugriff wird auf das Postfach des Chefs begrenzt. Andere Postfächer bleiben gesperrt.</li>
+      <li><b>Abgefragt werden:</b> Mails, die eine Antwort brauchen, und die Termine des Tages.</li></ul></div>
+    <div class="box"><h3>KI-Hotline</h3><ul>
+      <li><b>Weg:</b> san6 hat eine eigene Schnittstelle für Telefon-KIs („VoiceBot“). Die Hotline ist sehr wahrscheinlich darüber angebunden.</li>
+      <li><b>Während des Anrufs</b> fragt die Hotline san6 nach Kunde, Lieferstatus oder offenen Rechnungen.</li>
+      <li><b>Nach dem Anruf</b> legt sie Rückrufwünsche und Anliegen als Orga an eine feste Gruppe im san6 an.</li>
+      <li><b>Das Dashboard</b> liest diese offenen Orgas mit. Eine eigene Verbindung zur Hotline ist nicht nötig.</li>
+      <li><b>Grenze:</b> Anrufzahlen pro Tag kennt san6 nicht. Die müssten vom Hotline-Anbieter kommen, z. B. als täglicher Export.</li></ul></div>
+    <div class="box"><h3>Claude (KI)</h3><ul>
+      <li><b>Weg:</b> Claude-API von Anthropic über HTTPS.</li>
+      <li><b>Bekommt:</b> die Vorgänge des Tages mit Kürzeln statt Namen, dazu Kennzahlen und Termine.</li>
+      <li><b>Liefert:</b> die wichtigsten Punkte mit Begründung in einem festen Format. Jeder Punkt verweist auf die IDs der zugehörigen Vorgänge.</li>
+      <li><b>Kontrolle:</b> Jede Anfrage wird protokolliert. Im Dashboard zeigt „Was ging an die KI?“ genau, was gesendet wurde.</li></ul></div>
+  </div>
+
+  <h3 style="font-family:var(--serif);font-weight:500;font-size:19px;margin:28px 0 10px">Wie die Daten zusammengeführt werden</h3>
+  <div class="two">
+    <div class="box"><h3>Feste Regeln im Programm</h3><ul>
+      <li><b>Ein Vorgang, eine ID:</b> Jede Mail, jedes fehlende Rezept und jedes Hotline-Anliegen bekommt eine feste Kennung. Darum bleibt „Erledigt“ auch am nächsten Tag erledigt.</li>
+      <li><b>Kundennummer als Schlüssel:</b> Über die san6-Kundennummer gehören Termin, Rechnung, Rezept und Hotline-Anliegen zum selben Kunden.</li>
+      <li><b>Ein Kürzel pro Kunde:</b> Derselbe Kunde heißt in allen Quellen gleich, z. B. K-07. So erkennt die KI Zusammenhänge, ohne den Namen zu kennen.</li>
+      <li><b>Kennzahlen:</b> Umsatz und offene Rechnungen rechnet das Programm selbst aus. Die KI rechnet nicht.</li></ul></div>
+    <div class="box"><h3>Inhaltliche Verknüpfung durch die KI</h3><ul>
+      <li>Die KI erkennt, was inhaltlich zusammengehört, auch über Quellen hinweg.</li>
+      <li>Zusammengehöriges wird zu <b>einem</b> Punkt mit Begründung zusammengefasst.</li>
+      <li>Typische Verbindungen: Lieferrückstand im san6 + Mail des Lieferanten + Nachfrage in der Hotline. Oder: mehrere fehlende Rezepte bei derselben Praxis.</li>
+      <li>Die KI darf nur IDs verwenden, die es wirklich gibt. Erfundene Verweise sortiert das Programm aus.</li></ul></div>
+  </div>
+  <div class="beispiel"><b>Beispiel aus der Testversion:</b> Zwei Kunden beschwerten sich bei der Hotline, weil der Techniker nicht kam. Bei einem davon meldete die Hotline außerdem ein defektes Pflegebett. Die KI hat die drei Orgas zu einem dringenden Punkt zusammengefasst: „Techniker nicht erschienen – beide Kunden heute zurückrufen“.</div>
+
+  <h3 style="font-family:var(--serif);font-weight:500;font-size:19px;margin:28px 0 10px">Ablauf am Morgen</h3>
+  <div class="zeit">
+    <b>05:00</b><span>Der Server fragt san6 ab. Dauer etwa 10 Sekunden.</span>
+    <b>05:00</b><span>Danach Microsoft 365: Mails und Kalender, wenige Sekunden.</span>
+    <b>05:01</b><span>Kürzel setzen, Vorgänge bilden, Anfrage an Claude. Die Antwort dauert etwa 30–60 Sekunden.</span>
+    <b>05:02</b><span>Ergebnis ist gespeichert und wartet.</span>
+    <b>08:00</b><span>Der Chef meldet sich an. Das Dashboard öffnet sich und zeigt sofort alles an.</span>
+    <b>tagsüber</b><span>„Jetzt abgleichen“ holt jederzeit den neuesten Stand.</span>
+  </div>
+  <p style="margin-top:12px"><small>Fällt eine Quelle aus, läuft der Rest trotzdem weiter. Das Dashboard zeigt dann einen Hinweis, welche Quelle fehlt. Alle Verbindungen laufen verschlüsselt (HTTPS). Zugangsdaten liegen nur auf dem Server. Der Server baut alle Verbindungen selbst auf, aus dem Internet muss nichts erreichbar sein.</small></p>
 
   <h2>Datenschutz</h2>
   <div class="two">
