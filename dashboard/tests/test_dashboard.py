@@ -158,3 +158,15 @@ def test_ohne_schluessel_klare_meldung(dienst):
     c = create_app(dienst).test_client()
     r = c.post("/api/frage", json={"frage": "Hallo", "verlauf": []})
     assert r.status_code == 503 and "nicht verbunden" in r.get_json()["fehler"]
+
+
+def test_neue_wuensche_und_datenschutz(mit_ki):
+    dienst, fake = mit_ki
+    b = dienst.abgleich()
+    k = b["kennzahlen"]
+    assert k["kv_ueber_21"] > 0 and k["mahnung_3"] + k["mahnung_4"] == 4 and k["absetzungen_anzahl"] > 0
+    assert k["telefonie"]["anrufe"] > 0 and b["rezeptpruefung"]
+    gesendet = fake.gesendet[0]["messages"][0]["content"]
+    for r in b["rezeptpruefung"]:
+        assert r["diagnose"] not in gesendet          # Diagnosen gehen nie an die KI
+    assert '"Krank"' not in gesendet and '"Urlaub"' not in gesendet   # Abwesenheitsgrund bleibt im Haus

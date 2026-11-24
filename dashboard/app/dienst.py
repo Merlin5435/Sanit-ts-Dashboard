@@ -12,7 +12,7 @@ from typing import Callable
 from topm_gateway.graph_client import GraphClient
 from topm_gateway.san6_client import San6Client
 
-from . import abholen, kandidaten
+from . import abholen, kandidaten, pruefung
 from .config import Config
 from .ki import KI, KIFehler
 from .kuerzel import Kuerzel
@@ -29,8 +29,9 @@ def _pid(kids: list[str]) -> str:
 
 class Dienst:
     def __init__(self, cfg: Config, san6: San6Client, graph: GraphClient, speicher: Speicher,
-                 heute: Callable[[], date] = date.today, welt=None):
+                 heute: Callable[[], date] = date.today, welt=None, zusatz_url: str = ""):
         self.cfg, self.san6, self.graph, self.speicher = cfg, san6, graph, speicher
+        self.zusatz_url = zusatz_url  # Telefonie-Statistik und Absetzungen (Quelle noch offen)
         self.heute = heute
         self.welt = welt            # nur in der Testversion
         self.ki = KI(cfg, speicher)
@@ -43,20 +44,28 @@ class Dienst:
             heute = self.heute()
             s6 = abholen.san6_daten(self.san6, self.cfg, heute)
             ol = abholen.outlook_daten(self.graph, self.cfg.chef_postfach, heute)
+            zu = abholen.zusatz_daten(self.zusatz_url, heute)
+            rp = pruefung.pruefe(pruefung.neue_rezepte(s6.get("auftraege", [])), zu.get("absetzungen") or [])
             kz = Kuerzel()
             for t in s6.get("termine", []):         # alle bekannten Kundennamen vorab registrieren
                 kz.kunde(t.get("kunde", ""))
             for r in s6.get("offene_rechnungen", []):
                 kz.kunde(r["name"])
-            kands = kandidaten.baue(s6, ol, heute, kz, self.speicher.ausgeblendet(heute))
-            kzahlen = kandidaten.kennzahlen(s6, heute)
+            for a in s6.get("auftraege", []):
+                kz.kunde(a["kunde"])
+            kands = kandidaten.baue(s6, ol, heute, kz, self.speicher.ausgeblendet(heute), rp)
+            kzahlen = kandidaten.kennzahlen(s6, heute, zu, rp)
+            # Für die KI: Abwesenheiten ohne Grund (Krankheit ist ein Gesundheitsdatum), keine Einzellisten
+            kzahlen_ki = {k: v for k, v in kzahlen.items() if k not in ("abwesend", "abrechnungen")}
+            kzahlen_ki["mitarbeiter_abwesend_heute"] = [
+                {"mitarbeiter": a["mitarbeiter"], "abwesend_bis": a["bis"]} for a in kzahlen["abwesend"]]
             termine = abholen.termine_chef(s6, ol, self.cfg.chef_nummer)
             auslastung = self._auslastung(s6)
 
             eingabe = {
                 "heute": ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"][heute.weekday()]
                          + heute.strftime(", %d.%m.%Y"),
-                "kennzahlen": kzahlen,
+                "kennzahlen": kzahlen_ki,
                 "termine_geschaeftsfuehrer": [{"zeit": t["zeit"], "titel": kz.schwaerzen(t["titel"])} for t in termine],
                 "termine_mitarbeiter_heute": auslastung,
                 "kandidaten": [{"id": k["id"], "art": k["art"], "text": k["ki"]} for k in kands],
@@ -71,7 +80,10 @@ class Dienst:
                 ergebnis = self._ohne_ki(kands)
 
             briefing = self._zusammenbauen(ergebnis, kands, kz, heute, kzahlen, termine, ol, ohne_ki)
-            briefing["fehler"] = s6["fehler"] + ol["fehler"] + ([ki_fehler] if ki_fehler else [])
+            briefing["fehler"] = s6["fehler"] + ol["fehler"] + zu["fehler"] + ([ki_fehler] if ki_fehler else [])
+            briefing["orgas"] = [{"thema": o["thema"], "datum": o["datum"], "text": o["text"]} for o in s6.get("orgas_chef", [])]
+            briefing["rezeptpruefung"] = [{"kunde": r["kunde"], "produkt": r["produkt"], "diagnose": r["diagnose"],
+                                           "hinweis": r["hinweis"], "kasse": r["kasse"]} for r in rp]
             briefing["kontext_ki"] = json.dumps(eingabe, ensure_ascii=False)
             briefing["dauer_s"] = round(time.time() - t0, 1)
             self.speicher.briefing_speichern(briefing)
@@ -125,10 +137,12 @@ class Dienst:
             punkte.append({"titel": f"{len(rez)} fehlende Rezepte nachfordern",
                            "begruendung": f"{len(alt)} davon seit über 14 Tagen offen.",
                            "dringlichkeit": "dringend" if alt else "heute", "kandidaten": [k["id"] for k in rez], "aktion": "keine"})
-        for art, titel in [("Anliegen aus der KI-Hotline", "Anliegen aus der KI-Hotline bearbeiten"),
+        for art, titel in [("Rezept mit Absetzungsrisiko", "Rezepte vor der Abrechnung prüfen"),
+                           ("KV älter als 3 Wochen", "KVs bei den Kassen nachfassen"),
+                           ("Anliegen aus der KI-Hotline", "Anliegen aus der KI-Hotline bearbeiten"),
                            ("offene Rechnung", "Überfällige Rechnungen prüfen"),
                            ("Lieferrückstand", "Lieferrückstände klären"), ("Wiedervorlage", "Fällige Wiedervorlagen")]:
-            ks = [k for k in kands if k["art"] == art]
+            ks = [k for k in kands if k["art"] == art or (art == "offene Rechnung" and k["art"].endswith("Mahnung"))]
             if ks:
                 punkte.append({"titel": f"{titel} ({len(ks)})", "begruendung": "Nach festen Regeln ausgewählt, nicht von der KI.",
                                "dringlichkeit": "heute", "kandidaten": [k["id"] for k in ks], "aktion": "keine"})

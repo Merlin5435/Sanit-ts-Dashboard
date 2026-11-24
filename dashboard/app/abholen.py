@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta
 from topm_gateway.graph_client import GraphClient
 from topm_gateway.san6_api import San6Service, normalize_op
 from topm_gateway.san6_client import San6Client
-from topm_gateway.xmlutil import child_text, find_all, fmt_date, parse_date, parse_num
+from topm_gateway.xmlutil import child_text, find_all, find_first, fmt_date, parse_date, parse_num
 
 from .config import Config
 
@@ -35,12 +35,44 @@ def san6_daten(client: San6Client, cfg: Config, heute: date) -> dict:
             return []
 
     # Termine heute (alle Mitarbeiter, für Auslastung) – Diagnose-Sonderfelder werden nicht übernommen
-    out["termine"] = versuch("TERMINE", lambda: [
+    alle_termine = versuch("TERMINE", lambda: svc.termine(heute, heute))
+    ABWESEND = ("urlaub", "krank")
+    out["termine"] = [
         {"nummer": t.get("nummer"), "zeit": t.get("start", "")[11:16] if t.get("start") else "",
          "mitarbeiter": t.get("mitarbeiter_nr"), "mitarbeiter_name": (t.get("mitarbeiter") or "").split("-", 1)[-1],
          "thema": t.get("thema"), "kunde_nr": (t.get("kunde") or {}).get("Kundennr", ""),
          "kunde": (t.get("kunde") or {}).get("Kundenname", ""), "info": t.get("infos")}
-        for t in svc.termine(heute, heute)])
+        for t in alle_termine if (t.get("terminart") or "").lower() not in ABWESEND]
+    # Urlaub / Krank: Annahme – stehen im TopM-Timer als Termine mit eigener Terminart
+    out["abwesend"] = [
+        {"mitarbeiter": (t.get("mitarbeiter") or "").split("-", 1)[-1], "art": t.get("terminart"),
+         "bis": (t.get("ende") or "")[:10]}
+        for t in alle_termine if (t.get("terminart") or "").lower() in ABWESEND]
+
+    def auftraege():
+        r = client.get("AUFTRAEGE1", {"Status": "0167"})
+        rows = []
+        for e in find_all(r.root, "Auftrag"):
+            datum = parse_date(child_text(e, "Datum")) or heute
+            eingang = parse_date(child_text(e, "Rezepteingang"))
+            art = find_first(e, "Artikel")
+            rows.append({"auftrag": child_text(e, "Auftragsnummer"), "status": child_text(e, "Status"),
+                         "datum": _iso(datum), "tage": (heute - datum).days,
+                         "kunde_nr": child_text(e, "Kundennummer"), "kunde": child_text(e, "Kundenname"),
+                         "kasse": child_text(e, "Krankenkasse"), "betrag": parse_num(child_text(e, "Betrag")),
+                         "rezepteingang": _iso(eingang),
+                         "diagnose": child_text(e, "Diagnose"),   # bleibt auf dem Server, geht nie an die KI
+                         "produkt": child_text(art, "Bezeichnung") if art is not None else "",
+                         "hmv": child_text(art, "HMVNr") if art is not None else ""})
+        return rows
+    out["auftraege"] = versuch("AUFTRAEGE1", auftraege)
+
+    def abrechnungen():
+        r = client.get("ABRECHNUNG1")
+        return [{"beleg": child_text(e, "Beleg"), "kasse": child_text(e, "IKKostentraeger"),
+                 "datum": _iso(parse_date(child_text(e, "Datum"))), "status": child_text(e, "Status"),
+                 "summe": parse_num(child_text(e, "Summe"))} for e in find_all(r.root, "Abrechnung1")]
+    out["abrechnungen"] = versuch("ABRECHNUNG1", abrechnungen)
 
     def rezepte():
         r = client.get("REZEPTANFORDERUNGEN")
@@ -132,3 +164,20 @@ def termine_chef(san6: dict, outlook: dict, chef: str) -> list[dict]:
             for t in san6.get("termine", []) if t.get("mitarbeiter") == chef]
     rows += [{"zeit": t["zeit"], "titel": t["betreff"], "quelle": "Outlook"} for t in outlook.get("termine", [])]
     return sorted(rows, key=lambda x: x["zeit"])
+
+
+def zusatz_daten(basis_url: str, heute: date) -> dict:
+    """Quellen, deren echter Weg noch offen ist (Telefonie-Statistik, Absetzungen). In der Testversion simuliert."""
+    import requests
+    out: dict = {"fehler": [], "telefonie": None, "absetzungen": []}
+    if not basis_url:
+        return out
+    try:
+        out["telefonie"] = requests.get(basis_url + "/telefonie/gestern", timeout=20).json()
+    except Exception as e:
+        out["fehler"].append(f"Telefonie-Statistik: {e}")
+    try:
+        out["absetzungen"] = requests.get(basis_url + "/abrechnung/absetzungen", timeout=20).json()
+    except Exception as e:
+        out["fehler"].append(f"Absetzungen: {e}")
+    return out

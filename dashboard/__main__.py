@@ -37,16 +37,17 @@ def _im_hintergrund(app) -> str:
 def baue_dienst(cfg, db_pfad: str | None = None, heute: date | None = None) -> Dienst:
     if cfg.modus != "test":
         raise SystemExit("Die Vollversion (echte Systeme) ist noch nicht freigeschaltet. DASHBOARD_MODUS=test verwenden.")
-    from dashboard.testwelt import graph_sim, san6_sim
+    from dashboard.testwelt import anbieter_sim, graph_sim, san6_sim
     from dashboard.testwelt.welt import Welt
     welt = Welt(heute=heute or date.today())
     s6_url = _im_hintergrund(san6_sim.create_app(welt, "TEST")) + "/inhouse.top"
     gr_url = _im_hintergrund(graph_sim.create_app(welt))
+    zu_url = _im_hintergrund(anbieter_sim.create_app(welt))
     san6 = San6Client(San6Config(base_url=s6_url, company="Testwelt", product="san6Test", mandant="Test", sys="50",
                                  password="TEST", auth_mode="md5"))
     graph = GraphClient(GraphConfig(tenant_id="test", client_id="test", client_secret="test",
                                     authority=gr_url, base_url=gr_url + "/v1.0"))
-    return Dienst(cfg, san6, graph, Speicher(db_pfad or cfg.db_pfad), heute=lambda: welt.heute, welt=welt)
+    return Dienst(cfg, san6, graph, Speicher(db_pfad or cfg.db_pfad), heute=lambda: welt.heute, welt=welt, zusatz_url=zu_url)
 
 
 def main() -> None:

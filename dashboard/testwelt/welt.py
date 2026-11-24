@@ -34,6 +34,17 @@ AERZTE = [("40007", "Praxis Dr. Brandt", "Königsbrunn"), ("40008", "Dr. Okafor"
 KASSEN = ["AOK Bayern", "BARMER", "Techniker Krankenkasse", "DAK-Gesundheit"]
 LIEFERANTEN = [("70001", "Medi GmbH", "Kompressionsstrumpf"), ("70002", "Bauerfeind AG", "Bandage"),
                ("70003", "Invacare GmbH", "Rollator"), ("70004", "Ottobock", "Orthese")]
+PRODUKTE = [  # (Produkt, Hilfsmittelnummer, typische Diagnose ICD-10)
+    ("Kompressionsstrümpfe", "17.06.01.2001", "I83.9"), ("Einlagen", "08.03.01.1000", "M21.4"),
+    ("Rollator", "10.50.04.0001", "R26.8"), ("Kniebandage", "05.04.01.0006", "M17.1"),
+    ("Pflegebett", "19.40.01.0010", "G35.9"), ("Orthese Handgelenk", "23.03.01.0002", "S62.5"),
+]
+# Muster, die in den Absetzungen gehäuft auftreten (für die Rezeptprüfung)
+ABSETZUNGSGRUENDE = {
+    ("Kompressionsstrümpfe", "I83"): "Diagnose begründet die Kompressionsklasse nicht",
+    ("Einlagen", "M21"): "Verordnung bei Abgabe älter als 28 Tage",
+    ("Rollator", "R26"): "Genehmigung der Kasse fehlt",
+}
 VERSORGUNGEN = ["Kompressionsstrümpfe", "Einlagen", "Rollator", "Pflegebett", "Inkontinenzversorgung",
                 "Kniebandage", "Badewannenlifter", "Rollstuhl", "Orthese Handgelenk"]
 
@@ -91,6 +102,11 @@ class Welt:
     termine: list[dict] = field(default_factory=list)
     mails: list[dict] = field(default_factory=list)
     outlook_termine: list[dict] = field(default_factory=list)
+    auftraege: list[dict] = field(default_factory=list)      # KVs, offene Aufträge, Mahnstufen, neue Rezepte
+    abrechnungen: list[dict] = field(default_factory=list)   # offene Abrechnungen (ABRECHNUNG1)
+    absetzungen: list[dict] = field(default_factory=list)    # Absetzungen der Kassen (Export, Quelle offen)
+    abwesend: list[dict] = field(default_factory=list)       # Urlaub / Krank (als Termine im Timer)
+    telefonie: dict = field(default_factory=dict)            # Statistik vom Hotline-Anbieter (Quelle offen)
     _n: int = 100
 
     def __post_init__(self):
@@ -135,6 +151,73 @@ class Welt:
             self._neue_mail(m, datetime.combine(t - timedelta(days=r.randint(0, 2)), datetime.min.time())
                             + timedelta(hours=r.randint(7, 18)))
         self._termine_fuer(t)
+        self._neue_bereiche()
+
+    # ------------------------------------------------------------------ Wünsche des Chefs (Nov. 2026)
+    def _auftrag(self, status: str, datum: date, **extra) -> dict:
+        k = self.kunde()
+        prod, hmv, icd = self.rnd.choice(PRODUKTE)
+        a = dict(nr=f"{self.nr():06d}", status=status, datum=datum, kunde=k, kasse=self.rnd.choice(KASSEN),
+                 produkt=prod, hmv=hmv, diagnose=icd, betrag=round(self.rnd.choice([89.0, 145.5, 238.0, 412.0, 980.0, 1890.0]), 2),
+                 filiale=self.rnd.choice(FILIALEN), rezepteingang=None)
+        a.update(extra)
+        self.auftraege.append(a)
+        return a
+
+    def _neue_absetzung(self, datum: date) -> None:
+        prod, hmv, icd = self.rnd.choice(PRODUKTE)
+        grund = ABSETZUNGSGRUENDE.get((prod, icd[:3])) or self.rnd.choice(
+            ["Zuzahlung falsch berechnet", "Unterschrift fehlt", "Abgabedatum fehlt"])
+        self.absetzungen.append(dict(datum=datum, beleg=f"B{self.nr():05d}", kasse=self.rnd.choice(KASSEN),
+                                     produkt=prod, hmv=hmv, diagnose=icd, grund=grund,
+                                     betrag=round(self.rnd.choice([45.0, 89.9, 145.5, 238.0]), 2)))
+
+    def _neue_bereiche(self) -> None:
+        t, r = self.heute, self.rnd
+        for tage in (4, 9, 16, 23, 25, 31, 38, 44, 52):                     # eingereichte KVs
+            self._auftrag("1", t - timedelta(days=tage))
+        for _ in range(12):                                                   # offene Aufträge
+            self._auftrag("0", t - timedelta(days=r.randint(0, 20)))
+        for st in ("6", "6", "7", "7"):                                       # 3. und 4. Mahnung
+            self._auftrag(st, t - timedelta(days=r.randint(70, 140)))
+        for prod_icd in [("Kompressionsstrümpfe", "I83.9"), ("Einlagen", "M21.4"), ("Rollator", "R26.8"),
+                         ("Kniebandage", "M17.1"), ("Kompressionsstrümpfe", "I87.2")]:  # neue Rezepte
+            self._neues_rezept_eingang(t - timedelta(days=r.randint(0, 3)), *prod_icd)
+        for _ in range(16):                                                   # Absetzungen der letzten 3 Wochen
+            self._neue_absetzung(t - timedelta(days=r.randint(1, 21)))
+        for (p, d), g in ABSETZUNGSGRUENDE.items():                           # klare Muster für die Prüfung
+            for _ in range(3):
+                hmv = next(x[1] for x in PRODUKTE if x[0] == p)
+                self.absetzungen.append(dict(datum=t - timedelta(days=r.randint(1, 21)), beleg=f"B{self.nr():05d}",
+                                             kasse=r.choice(KASSEN), produkt=p, hmv=hmv, diagnose=d + ".9", grund=g,
+                                             betrag=round(r.choice([89.9, 145.5]), 2)))
+        self.abrechnungen = [dict(beleg=f"{self.nr():06d}-AB12CD", ik="108310400", kasse=k, datum=t - timedelta(days=r.randint(1, 12)),
+                                  summe=round(r.uniform(2500, 18000), 2), status=r.choice(["0", "0", "1"]))
+                             for k in KASSEN[:3]]
+        self._abwesenheiten()
+        self._telefonie()
+
+    def _neues_rezept_eingang(self, eingang: date, prod: str, icd: str) -> None:
+        hmv = next(x[1] for x in PRODUKTE if x[0] == prod)
+        self._auftrag("0", eingang, rezepteingang=eingang, produkt=prod, hmv=hmv, diagnose=icd)
+
+    def _abwesenheiten(self) -> None:
+        r, t = self.rnd, self.heute
+        ma = r.sample(MITARBEITER[1:], k=2)
+        self.abwesend = [dict(ma=ma[0], art="Urlaub", von=t - timedelta(days=2), bis=t + timedelta(days=r.randint(1, 6))),
+                         dict(ma=ma[1], art="Krank", von=t, bis=t + timedelta(days=r.randint(0, 2)))]
+        if r.random() < 0.4:
+            self.abwesend.pop()
+
+    def _telefonie(self) -> None:
+        r = self.rnd
+        n = r.randint(28, 46)
+        arten = {"Terminwunsch": 0, "Lieferstatus": 0, "Rezept / Rechnung": 0, "Reparatur": 0, "Sonstiges": 0}
+        for _ in range(n):
+            arten[r.choices(list(arten), weights=[5, 4, 3, 2, 2])[0]] += 1
+        self.telefonie = dict(datum=self.heute - timedelta(days=1), anrufe=n, geloest=int(n * r.uniform(0.62, 0.8)),
+                              weitergeleitet=r.randint(3, 8), zufriedenheit=round(r.uniform(3.6, 4.6), 1),
+                              unzufrieden=r.randint(0, 4), dauer_min=round(r.uniform(1.8, 3.4), 1), arten=arten)
 
     def _neues_rezept(self, anfrage: date, arzt=None) -> None:
         k = self.kunde()
@@ -260,3 +343,29 @@ class Welt:
             for v in r.sample(MAIL_VORLAGEN, k=r.randint(2, 4)):
                 self._neue_mail(v, datetime.combine(t - timedelta(days=1), datetime.min.time()) + timedelta(hours=r.randint(8, 19)))
             self._termine_fuer(t)
+            # KVs: teils genehmigt (-> offen), neue kommen dazu
+            for a in self.auftraege:
+                if a["status"] == "1" and r.random() < 0.2:
+                    a["status"] = "0"
+                elif a["status"] == "6" and r.random() < 0.15:
+                    a["status"] = "7"
+                elif a["status"] in ("6", "7") and r.random() < 0.15:
+                    a["status"] = "8"
+                elif a["status"] == "0" and r.random() < 0.15:
+                    a["status"] = "2"
+            self.auftraege = [a for a in self.auftraege if a["status"] in ("0", "1", "6", "7")]
+            for _ in range(r.randint(0, 2)):
+                self._auftrag("1", t - timedelta(days=1))
+            for _ in range(r.randint(1, 3)):
+                self._auftrag("0", t - timedelta(days=1))
+            for _ in range(r.randint(1, 3)):
+                p, _, icd = r.choice(PRODUKTE)
+                self._neues_rezept_eingang(t - timedelta(days=1), p, icd)
+            self.absetzungen = [x for x in self.absetzungen if (t - x["datum"]).days <= 21]
+            for _ in range(r.randint(0, 3)):
+                self._neue_absetzung(t - timedelta(days=1))
+            for a in self.abrechnungen:
+                if r.random() < 0.3:
+                    a["status"] = "1"
+            self._abwesenheiten()
+            self._telefonie()

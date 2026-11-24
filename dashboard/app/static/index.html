@@ -170,6 +170,16 @@ textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:
       <div class="age" id="or-bar"></div>
       <div class="legend"><span><i style="background:var(--good)"></i>nicht fällig</span><span><i style="background:var(--warn)"></i>überfällig</span><span><i style="background:var(--bad)"></i>gemahnt</span></div>
       <ul class="rows" id="or-rows" style="margin-top:6px"></ul></div></section>
+
+    <section class="tile kpi" data-id="kv"><div class="thead"><h3>Offene KVs</h3><span class="pill warn" id="k-kv-p"></span></div><div class="tbody"><div class="big num" id="k-kv"></div></div></section>
+    <section class="tile kpi" data-id="auftraege"><div class="thead"><h3>Offene Aufträge</h3><span class="pill" id="k-auf-p"></span></div><div class="tbody"><div class="big num" id="k-auf"></div></div></section>
+    <section class="tile kpi" data-id="mahnung"><div class="thead"><h3>Mahnungen Stufe 3 + 4</h3><span class="pill bad" id="k-mahn-p"></span></div><div class="tbody"><div class="big num" id="k-mahn"></div></div></section>
+    <section class="tile kpi" data-id="abwesend"><div class="thead"><h3>Abwesend heute</h3></div><div class="tbody"><div id="k-abw" style="font-size:13px"></div></div></section>
+    <section class="tile" data-id="pruefung"><div class="thead"><h3>Rezeptprüfung vor der Abrechnung</h3><small>gegen Absetzungen der letzten 3 Wochen</small></div><div class="tbody"><ul class="rows" id="pruefung"></ul></div></section>
+    <section class="tile" data-id="absetzungen"><div class="thead"><h3>Absetzungen (3 Wochen)</h3><span class="pill bad" id="k-abs-p"></span></div><div class="tbody"><div class="big num" id="k-abs"></div><ul class="rows" id="abs-gruende" style="margin-top:4px"></ul></div></section>
+    <section class="tile" data-id="telefonie"><div class="thead"><h3>KI-Telefonie gestern</h3><small title="Quelle: Hotline-Anbieter – in der Testversion simuliert">Anbieter</small></div><div class="tbody"><ul class="rows" id="telefonie"></ul></div></section>
+    <section class="tile" data-id="abrechnung"><div class="thead"><h3>Offene Abrechnungen</h3><small id="abr-sum"></small></div><div class="tbody"><ul class="rows" id="abrechnung"></ul></div></section>
+    <section class="tile" data-id="orgas"><div class="thead"><h3>Orgas an mich</h3><small id="orgas-anz"></small></div><div class="tbody"><ul class="rows" id="orgas"></ul></div></section>
   </div>
 </div>
 
@@ -202,12 +212,15 @@ themeKnopf();
 /* ---------------------------------------------------------------- Kacheln: verschieben und Größe ändern */
 const STANDARD = [
   ["umsatz", 3, 1], ["or", 3, 1], ["termzahl", 3, 1], ["rezepte", 3, 1],
+  ["kv", 3, 1], ["auftraege", 3, 1], ["mahnung", 3, 1], ["abwesend", 3, 1],
   ["wichtig", 8, 6], ["assistent", 4, 4], ["termine", 4, 2],
+  ["pruefung", 6, 3], ["absetzungen", 3, 3], ["telefonie", 3, 3],
   ["postfach", 4, 3], ["hotline", 4, 3], ["opdetail", 4, 3],
+  ["orgas", 6, 2], ["abrechnung", 6, 2],
 ];
-const MIN = {umsatz: [2, 1], or: [2, 1], termzahl: [2, 1], rezepte: [2, 1], wichtig: [4, 3], assistent: [3, 3]};
+const MIN = {umsatz: [2, 1], or: [2, 1], termzahl: [2, 1], rezepte: [2, 1], kv: [2, 1], auftraege: [2, 1], mahnung: [2, 1], abwesend: [2, 1], wichtig: [4, 3], assistent: [3, 3]};
 const raster = $("raster");
-let layout = lese("dash-layout-v1");
+let layout = lese("dash-layout-v2");
 if (!Array.isArray(layout) || layout.length !== STANDARD.length) layout = STANDARD.map(x => [...x]);
 
 function anordnen() {
@@ -218,7 +231,7 @@ function anordnen() {
     raster.append(t);
   }
 }
-function speichern() { schreibe("dash-layout-v1", layout); }
+function speichern() { schreibe("dash-layout-v2", layout); }
 const eintrag = (id) => layout.find(x => x[0] === id);
 
 for (const t of raster.children) t.append(h("span", {class: "griff", title: "Größe ändern"}));
@@ -324,6 +337,28 @@ function zeichnen() {
   $("or-rows").replaceChildren(h("li", {}, h("span", {}, "noch nicht fällig"), h("span", {class: "num"}, eur(k.or_nicht_faellig))),
     h("li", {}, h("span", {}, "überfällig, nicht gemahnt"), h("span", {class: "num"}, eur(k.or_ueberfaellig))),
     h("li", {}, h("span", {}, `gemahnt (${k.anzahl_gemahnt})`), h("span", {class: "num"}, eur(k.or_gemahnt))));
+
+  // --- Wünsche des Chefs
+  const leer = (t) => [h("li", {class: "leer"}, t)];
+  const zeile = (a, b, cls) => h("li", {}, h("span", {}, a), h("span", {class: "num " + (cls || "")}, b));
+  $("k-kv").textContent = k.kv_offen; $("k-kv-p").textContent = k.kv_ueber_21 + " > 3 Wochen";
+  $("k-auf").textContent = k.auftraege_offen; $("k-auf-p").textContent = eur(k.auftraege_summe);
+  $("k-mahn").textContent = k.mahnung_3 + k.mahnung_4; $("k-mahn-p").textContent = eur(k.mahnung_summe);
+  $("k-abw").replaceChildren(...(k.abwesend.length ? k.abwesend.map(a => h("div", {}, h("b", {}, a.mitarbeiter), ` – ${a.art} bis ${new Date(a.bis + "T12:00").toLocaleDateString("de-DE")}`)) : [h("span", {class: "muted"}, "Alle da")]));
+  $("pruefung").replaceChildren(...((B.rezeptpruefung || []).length ? B.rezeptpruefung.map(r => h("li", {style: "display:block"},
+      h("div", {}, h("b", {}, r.kunde), ` – ${r.produkt} `, h("small", {}, `(${r.diagnose}, ${r.kasse})`)),
+      h("div", {}, h("span", {class: "pill warn"}, "Risiko"), " ", h("small", {}, r.hinweis)))) : leer("Keine Auffälligkeiten bei den neuen Rezepten")));
+  $("k-abs").textContent = k.absetzungen_anzahl; $("k-abs-p").textContent = eur(k.absetzungen_summe);
+  $("abs-gruende").replaceChildren(...Object.entries(k.absetzungen_gruende || {}).map(([g, n]) => zeile(g, n + "×")));
+  const t = k.telefonie;
+  $("telefonie").replaceChildren(...(t ? [zeile("Anrufe", t.anrufe), zeile("Direkt gelöst", `${t.geloest} (${Math.round(100 * t.geloest / t.anrufe)} %)`),
+      zeile("An Team weitergeleitet", t.weitergeleitet), zeile("Zufriedenheit", t.zufriedenheit.toLocaleString("de-DE") + " / 5", t.zufriedenheit < 4 ? "" : ""),
+      zeile("Unzufrieden", t.unzufrieden, t.unzufrieden ? "" : ""), zeile("Ø Gesprächsdauer", t.dauer_min.toLocaleString("de-DE") + " min")] : leer("Keine Daten vom Anbieter")));
+  $("abr-sum").textContent = eur(k.abrechnungen_summe);
+  $("abrechnung").replaceChildren(...(k.abrechnungen.length ? k.abrechnungen.map(a => zeile(`${a.kasse} · ${new Date(a.datum + "T12:00").toLocaleDateString("de-DE")}`, eur(a.summe))) : leer("Keine offenen Abrechnungen")));
+  const og = B.orgas || [];
+  $("orgas-anz").textContent = og.length + " offen";
+  $("orgas").replaceChildren(...(og.length ? og.map(o => h("li", {}, h("span", {}, h("b", {}, o.thema), " ", h("small", {}, o.text)))) : leer("Keine offenen Orgas")));
 }
 
 function punkt(p, n) {

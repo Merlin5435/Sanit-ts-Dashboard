@@ -24,7 +24,13 @@ Wichtigkeit. Fasse Zusammengehöriges zu einem Punkt zusammen (z. B. mehrere feh
 Hotline-Rückrufe, ein Lieferrückstand und die Mail des Lieferanten dazu). Verbinde Informationen aus verschiedenen Quellen,
 wenn sie zusammenpassen – das ist dein eigentlicher Mehrwert.
 
-Wichtig ist, was Geld kostet oder bindet (Abrechnung blockiert, Mahnungen), was Kunden verärgert (Beschwerden, Verzug),
+Neue Arten von Kandidaten: Kostenvoranschläge (KV), die seit über 3 Wochen bei der Kasse liegen; Aufträge in der 3. oder
+4. Mahnstufe; neue Rezepte mit Absetzungsrisiko (die Rezeptprüfung hat ähnliche Fälle gefunden, die die Kasse zuletzt
+abgesetzt hat – vor der Abrechnung korrigieren). In den Kennzahlen stehen außerdem Absetzungen der letzten 3 Wochen,
+offene Abrechnungen, Statistik der KI-Telefonie (Anrufe gestern, Zufriedenheit 1–5) und abwesende Mitarbeiter
+(berücksichtige sie, z. B. wenn Termine umgeplant oder Aufgaben verteilt werden müssen).
+
+Wichtig ist, was Geld kostet oder bindet (Abrechnung blockiert, Mahnungen, Absetzungen), was Kunden verärgert (Beschwerden, Verzug),
 was eine Frist hat und was nur der Geschäftsführer entscheiden kann. Reine Routine, die das Team allein erledigt, und
 Newsletter gehören nicht in die Top-Punkte.
 

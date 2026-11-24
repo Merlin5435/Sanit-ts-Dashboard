@@ -81,7 +81,33 @@ def create_app(welt: Welt, passwort: str = "TEST") -> Flask:
                         s += "<Kunde>" + _t("Kundennr", k[0]) + _t("Kundenname", k[1]) + _t("Telefon", k[4]) + "</Kunde>"
                     s += "<Auftrag>" + _t("Filiale", f"{x['filiale'][0]}-{x['filiale'][1]}") + "</Auftrag>"
                     out.append(s + "</Termin>")
+                # Annahme: Urlaub/Krank stehen im TopM-Timer als Termine mit eigener Terminart
+                for x in w.abwesend:
+                    if x["von"] <= bis and x["bis"] >= von and (not mas or x["ma"][0] in mas):
+                        out.append("<Termin>" + _t("Nummer", f"A{x['ma'][0]}-{d(x['von'])}") + _t("Terminart", x["art"])
+                                   + _t("Thema", x["art"]) + _t("Status", "0") + _t("Datum", d(x["von"])) + _t("Zeit", "")
+                                   + _t("BisDatum", d(x["bis"])) + _t("BisZeit", "")
+                                   + _t("Mitarbeiter", f"{x['ma'][0]}-{x['ma'][1]}") + "</Termin>")
                 return _antwort("<Termine>" + "".join(out) + "</Termine>")
+            if f == "AUFTRAEGE1":
+                st = a.get("Status", "012")
+                rows = [x for x in w.auftraege if x["status"] in st]
+                return _antwort("<Auftraege1>" + "".join(
+                    "<Auftrag>" + _t("Modul", "A") + _t("Auftragstyp", "R") + _t("Filiale", x["filiale"][0])
+                    + _t("Auftragsnummer", x["nr"]) + _t("Auftragsnummer1", x["nr"] + "-A1B2C3")
+                    + _t("Kundennummer", x["kunde"][0]) + _t("Kundenname", x["kunde"][1]) + _t("Status", x["status"])
+                    + _t("Datum", d(x["datum"]))
+                    # Annahme Testwelt: diese Felder liefert das echte san6 ggf. erst über AUFTRAGSDATEN
+                    + _t("Krankenkasse", x["kasse"]) + _t("Betrag", f"{x['betrag']:.2f}")
+                    + _t("Rezepteingang", d(x["rezepteingang"]) if x["rezepteingang"] else "")
+                    + _t("Diagnose", x["diagnose"])
+                    + "<Positionen><Artikel>" + _t("Bezeichnung", x["produkt"]) + _t("HMVNr", x["hmv"]) + _t("Offen", "1")
+                    + "</Artikel></Positionen></Auftrag>" for x in rows) + "</Auftraege1>")
+            if f == "ABRECHNUNG1":
+                return _antwort("".join(
+                    "<Abrechnung1>" + _t("Beleg", x["beleg"]) + _t("IKNummer", x["ik"]) + _t("IKKostentraeger", x["kasse"])
+                    + _t("Rechnungsnummer", x["beleg"][:6]) + _t("Datum", d(x["datum"])) + _t("Status", x["status"])
+                    + _t("Summe", f"{x['summe']:.2f}") + _t("APIStatus", "1") + "</Abrechnung1>" for x in w.abrechnungen))
             if f == "RECHNUNGEN":
                 if not a.get("DatumVon"):
                     return _antwort(code="11", text="DatumVon fehlt im Funktionsaufruf")

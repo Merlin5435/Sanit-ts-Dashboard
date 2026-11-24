@@ -16,7 +16,9 @@ def _eur(x: float) -> str:
     return f"{x:,.2f} €".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def baue(san6: dict, outlook: dict, heute: date, kz: Kuerzel, ausgeblendet: set[str]) -> list[dict]:
+def baue(san6: dict, outlook: dict, heute: date, kz: Kuerzel, ausgeblendet: set[str],
+         rezeptpruefung: list[dict] | None = None) -> list[dict]:
+    rezeptpruefung = rezeptpruefung or []
     out: list[dict] = []
 
     def neu(kid: str, art: str, quelle: str, anzeige: str, ki: str, **extra):
@@ -70,10 +72,60 @@ def baue(san6: dict, outlook: dict, heute: date, kz: Kuerzel, ausgeblendet: set[
         neu(f"mail:{m['id']}", "E-Mail", "Outlook · Mail",
             f"{m['von']}: {m['betreff']}", f"Mail von {m['von']} ({m['zeit'][:10]}), Betreff „{m['betreff']}“: {m['text']}",
             mail_id=m["id"], markiert=m["markiert"])
+
+    # --- Wünsche des Chefs (Nov. 2026)
+    for a in san6.get("auftraege", []):
+        if a["status"] == "1" and a["tage"] > 21:
+            k = kz.kunde(a["kunde"])
+            neu(f"kv:{a['auftrag']}", "KV älter als 3 Wochen", "san6 · Aufträge",
+                f"KV {a['auftrag']} ({a['kunde']}, {a['kasse']}): {a['produkt']}, eingereicht vor {a['tage']} Tagen",
+                f"Kostenvoranschlag {a['auftrag']} für {k} bei {a['kasse']}: {a['produkt']}, {_eur(a['betrag'])}, "
+                f"vor {a['tage']} Tagen eingereicht, noch keine Antwort der Kasse.", tage=a["tage"])
+        elif a["status"] in ("6", "7"):
+            k = kz.kunde(a["kunde"])
+            stufe = "3. Mahnung" if a["status"] == "6" else "4. Mahnung"
+            neu(f"mahnung:{a['auftrag']}", stufe, "san6 · Aufträge",
+                f"{stufe}: Auftrag {a['auftrag']} ({a['kunde']}), {_eur(a['betrag'])}",
+                f"Auftrag {a['auftrag']} an {k} steht auf {stufe}, offen {_eur(a['betrag'])}.")
+    for r in rezeptpruefung:
+        k = kz.kunde(r["kunde"])
+        neu(f"pruefung:{r['auftrag']}", "Rezept mit Absetzungsrisiko", "san6 · Rezeptprüfung",
+            f"{r['kunde']} – {r['produkt']} (Diagnose {r['diagnose']}): {r['hinweis']}",
+            # Diagnose geht NICHT an die KI, nur Produkt und Hinweis
+            f"Neues Rezept von {k} für {r['produkt']} vor der Abrechnung: dieselbe Kombination aus Produkt und "
+            f"Diagnosegruppe wurde zuletzt {r['anzahl']}× abgesetzt, meist wegen „{r['grund']}“.")
     return out
 
 
-def kennzahlen(san6: dict, heute: date) -> dict:
+def kennzahlen(san6: dict, heute: date, zusatz: dict | None = None, rezeptpruefung: list | None = None) -> dict:
+    zusatz = zusatz or {}
+    auftraege = san6.get("auftraege", [])
+    kvs = [a for a in auftraege if a["status"] == "1"]
+    offen = [a for a in auftraege if a["status"] == "0"]
+    mahn = [a for a in auftraege if a["status"] in ("6", "7")]
+    abr = [a for a in san6.get("abrechnungen", []) if a["status"] == "0"]
+    abs_ = zusatz.get("absetzungen") or []
+    gruende: dict[str, int] = {}
+    for a in abs_:
+        gruende[a["grund"]] = gruende.get(a["grund"], 0) + 1
+    extra = {
+        "kv_offen": len(kvs), "kv_ueber_21": sum(1 for a in kvs if a["tage"] > 21),
+        "kv_summe": round(sum(a["betrag"] for a in kvs), 2),
+        "auftraege_offen": len(offen), "auftraege_summe": round(sum(a["betrag"] for a in offen), 2),
+        "mahnung_3": sum(1 for a in mahn if a["status"] == "6"), "mahnung_4": sum(1 for a in mahn if a["status"] == "7"),
+        "mahnung_summe": round(sum(a["betrag"] for a in mahn), 2),
+        "abrechnungen_offen": len(abr), "abrechnungen_summe": round(sum(a["summe"] for a in abr), 2),
+        "abrechnungen": [{"kasse": a["kasse"], "datum": a["datum"], "summe": a["summe"]} for a in abr],
+        "absetzungen_anzahl": len(abs_), "absetzungen_summe": round(sum(a["betrag"] for a in abs_), 2),
+        "absetzungen_gruende": dict(sorted(gruende.items(), key=lambda x: -x[1])[:4]),
+        "rezepte_geprueft": len(rezeptpruefung or []),
+        "telefonie": zusatz.get("telefonie"),
+        "abwesend": san6.get("abwesend", []),
+    }
+    return {**_kennzahlen_basis(san6, heute), **extra}
+
+
+def _kennzahlen_basis(san6: dict, heute: date) -> dict:
     ops = san6.get("offene_rechnungen", [])
     nicht_faellig = sum(r["offen"] for r in ops if not r["ueberfaellig"])
     ueberfaellig = sum(r["offen"] for r in ops if r["ueberfaellig"] and not r["mahnung_am"])
