@@ -159,7 +159,7 @@ class Welt:
         prod, hmv, icd = self.rnd.choice(PRODUKTE)
         a = dict(nr=f"{self.nr():06d}", status=status, datum=datum, kunde=k, kasse=self.rnd.choice(KASSEN),
                  produkt=prod, hmv=hmv, diagnose=icd, betrag=round(self.rnd.choice([89.0, 145.5, 238.0, 412.0, 980.0, 1890.0]), 2),
-                 filiale=self.rnd.choice(FILIALEN), rezepteingang=None)
+                 filiale=self.rnd.choice(FILIALEN), rezepteingang=None, rezept_scan=True)
         a.update(extra)
         self.auftraege.append(a)
         return a
@@ -192,8 +192,15 @@ class Welt:
                                              kasse=r.choice(KASSEN), produkt=p, hmv=hmv, diagnose=d + ".9", grund=g,
                                              betrag=round(r.choice([89.9, 145.5]), 2)))
         self.abrechnungen = [dict(beleg=f"{self.nr():06d}-AB12CD", ik="108310400", kasse=k, datum=t - timedelta(days=r.randint(1, 12)),
-                                  summe=round(r.uniform(2500, 18000), 2), status=r.choice(["0", "0", "1"]))
+                                  summe=round(r.uniform(2500, 18000), 2), status=r.choice(["0", "0", "1"]), verordnungen=[])
                              for k in KASSEN[:3]]
+        self.abrechnungen[0]["status"] = "0"
+        # gelieferte Rezept-Aufträge (Status 2 = Lieferschein): teils in einer Abrechnung, teils noch nicht
+        for i in range(9):
+            a = self._auftrag("2", t - timedelta(days=r.randint(4, 30)), rezepteingang=t - timedelta(days=r.randint(20, 40)),
+                              rezept_scan=(i not in (1, 4)))
+            if i < 6:
+                self.abrechnungen[i % 2]["verordnungen"].append(a["nr"])
         self._abwesenheiten()
         self._telefonie()
 
@@ -353,7 +360,10 @@ class Welt:
                     a["status"] = "8"
                 elif a["status"] == "0" and r.random() < 0.15:
                     a["status"] = "2"
-            self.auftraege = [a for a in self.auftraege if a["status"] in ("0", "1", "6", "7")]
+            self.auftraege = [a for a in self.auftraege if a["status"] in ("0", "1", "2", "6", "7")]
+            for _ in range(r.randint(0, 2)):
+                self._auftrag("2", t - timedelta(days=1), rezepteingang=t - timedelta(days=r.randint(10, 30)),
+                              rezept_scan=r.random() > 0.25)
             for _ in range(r.randint(0, 2)):
                 self._auftrag("1", t - timedelta(days=1))
             for _ in range(r.randint(1, 3)):

@@ -168,6 +168,8 @@ textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:
       <ul class="rows" id="or-rows" style="margin-top:6px"></ul></div></section>
 
     <section class="tile" data-id="kvalt"><div class="thead"><h3>Eingereichte KVs älter als 3 Wochen</h3><small id="kvalt-anz"></small></div><div class="tbody"><ul class="rows" id="kvalt"></ul></div></section>
+    <section class="tile" data-id="absetzungen"><div class="thead"><h3>Absetzungen der letzten 3 Wochen</h3><span class="pill bad" id="k-abs-p"></span></div><div class="tbody"><div class="big num" id="k-abs"></div><ul class="rows" id="abs-gruende" style="margin-top:4px"></ul></div></section>
+    <section class="tile" data-id="abgleich"><div class="thead"><h3>Abgleich Rezepte ↔ Abrechnungen</h3><small id="abgleich-anz"></small></div><div class="tbody"><ul class="rows" id="abgleich"></ul></div></section>
     <section class="tile kpi" data-id="kv"><div class="thead"><h3>Offene KVs</h3><span class="pill warn" id="k-kv-p"></span></div><div class="tbody"><div class="big num" id="k-kv"></div></div></section>
     <section class="tile kpi" data-id="auftraege"><div class="thead"><h3>Offene Aufträge</h3><span class="pill" id="k-auf-p"></span></div><div class="tbody"><div class="big num" id="k-auf"></div></div></section>
     <section class="tile kpi" data-id="mahnung"><div class="thead"><h3>Mahnungen Stufe 3 + 4</h3><span class="pill bad" id="k-mahn-p"></span></div><div class="tbody"><div class="big num" id="k-mahn"></div></div></section>
@@ -209,12 +211,13 @@ const STANDARD = [
   ["termine", 6, 3], ["postfach", 6, 3],
   ["wichtig", 8, 6], ["assistent", 4, 3], ["hotline", 4, 3],
   ["kv", 3, 1], ["auftraege", 3, 1], ["mahnung", 3, 1], ["abwesend", 3, 1],
-  ["pruefung", 6, 3], ["kvalt", 6, 3],
+  ["pruefung", 6, 3], ["abgleich", 6, 3],
+  ["absetzungen", 4, 3], ["kvalt", 8, 3],
   ["opdetail", 4, 3], ["abrechnung", 4, 3], ["telefonie", 4, 3],
 ];
 const MIN = {kv: [2, 1], auftraege: [2, 1], mahnung: [2, 1], abwesend: [2, 1], wichtig: [4, 3], assistent: [3, 2]};
 const raster = $("raster");
-let layout = lese("dash-layout-v3");
+let layout = lese("dash-layout-v4");
 if (!Array.isArray(layout) || layout.length !== STANDARD.length) layout = STANDARD.map(x => [...x]);
 
 function anordnen() {
@@ -225,7 +228,7 @@ function anordnen() {
     raster.append(t);
   }
 }
-function speichern() { schreibe("dash-layout-v3", layout); }
+function speichern() { schreibe("dash-layout-v4", layout); }
 const eintrag = (id) => layout.find(x => x[0] === id);
 
 for (const t of raster.children) t.append(h("span", {class: "griff", title: "Größe ändern"}));
@@ -328,6 +331,13 @@ function zeichnen() {
   // --- Wünsche des Chefs
   const leer = (t) => [h("li", {class: "leer"}, t)];
   const zeile = (a, b, cls) => h("li", {}, h("span", {}, a), h("span", {class: "num " + (cls || "")}, b));
+  $("k-abs").textContent = k.absetzungen_anzahl; $("k-abs-p").textContent = eur(k.absetzungen_summe);
+  $("abs-gruende").replaceChildren(...Object.entries(k.absetzungen_gruende || {}).sort((a, b) => b[1] - a[1]).map(([g, n]) => zeile(g, n + "×")));
+  const ag = B.abgleich || [];
+  $("abgleich-anz").textContent = `${k.abgleich_ohne_scan} ohne Rezept · ${k.abgleich_nicht_abgerechnet} nicht abgerechnet`;
+  $("abgleich").replaceChildren(...(ag.length ? ag.map(g => h("li", {style: "display:block"},
+      h("div", {}, h("b", {}, g.kunde), ` – ${g.produkt} `, h("small", {}, `(${g.kasse})`)),
+      h("div", {}, h("span", {class: "pill " + (g.typ === "Rezept fehlt im Archiv" ? "bad" : "warn")}, g.typ), " ", h("small", {}, g.hinweis)))) : leer("Alles abgeglichen")));
   const kva = B.kv_alt || [];
   $("kvalt-anz").textContent = kva.length + " Stück";
   $("kvalt").replaceChildren(...(kva.length ? kva.map(a => h("li", {}, h("span", {}, h("b", {}, a.kunde), ` – ${a.produkt} `, h("small", {}, `(${a.kasse})`)), h("span", {class: "num"}, `${a.tage} Tage`))) : leer("Keine")));

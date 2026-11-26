@@ -46,6 +46,7 @@ class Dienst:
             ol = abholen.outlook_daten(self.graph, self.cfg.chef_postfach, heute)
             zu = abholen.zusatz_daten(self.zusatz_url, heute)
             rp = pruefung.pruefe(pruefung.neue_rezepte(s6.get("auftraege", [])), zu.get("absetzungen") or [])
+            ag = pruefung.abgleich(s6.get("auftraege", []), s6.get("verordnungen", []))
             kz = Kuerzel()
             for t in s6.get("termine", []):         # alle bekannten Kundennamen vorab registrieren
                 kz.kunde(t.get("kunde", ""))
@@ -53,8 +54,8 @@ class Dienst:
                 kz.kunde(r["name"])
             for a in s6.get("auftraege", []):
                 kz.kunde(a["kunde"])
-            kands = kandidaten.baue(s6, ol, heute, kz, self.speicher.ausgeblendet(heute), rp)
-            kzahlen = kandidaten.kennzahlen(s6, heute, zu, rp)
+            kands = kandidaten.baue(s6, ol, heute, kz, self.speicher.ausgeblendet(heute), rp, ag)
+            kzahlen = kandidaten.kennzahlen(s6, heute, zu, rp, ag)
             # Für die KI: Abwesenheiten ohne Grund (Krankheit ist ein Gesundheitsdatum), keine Einzellisten
             kzahlen_ki = {k: v for k, v in kzahlen.items() if k not in ("abwesend", "abrechnungen")}
             kzahlen_ki["mitarbeiter_abwesend_heute"] = [
@@ -81,6 +82,7 @@ class Dienst:
 
             briefing = self._zusammenbauen(ergebnis, kands, kz, heute, kzahlen, termine, ol, ohne_ki)
             briefing["fehler"] = s6["fehler"] + ol["fehler"] + zu["fehler"] + ([ki_fehler] if ki_fehler else [])
+            briefing["abgleich"] = [{k: g[k] for k in ("typ", "kunde", "produkt", "kasse", "hinweis")} for g in ag]
             briefing["kv_alt"] = sorted([{"kunde": a["kunde"], "kasse": a["kasse"], "produkt": a["produkt"], "tage": a["tage"]}
                                          for a in s6.get("auftraege", []) if a["status"] == "1" and a["tage"] > 21],
                                         key=lambda x: -x["tage"])
@@ -140,7 +142,9 @@ class Dienst:
             punkte.append({"titel": f"{len(rez)} fehlende Rezepte nachfordern",
                            "begruendung": f"{len(alt)} davon seit über 14 Tagen offen.",
                            "dringlichkeit": "dringend" if alt else "heute", "kandidaten": [k["id"] for k in rez], "aktion": "keine"})
-        for art, titel in [("Rezept mit Absetzungsrisiko", "Rezepte vor der Abrechnung prüfen"),
+        for art, titel in [("Rezept fehlt im Archiv", "Rezept-Scans für die Abrechnung nachholen"),
+                           ("Rezept mit Absetzungsrisiko", "Rezepte vor der Abrechnung prüfen"),
+                           ("Noch nicht abgerechnet", "Gelieferte Rezepte abrechnen"),
                            ("KV älter als 3 Wochen", "KVs bei den Kassen nachfassen"),
                            ("Anliegen aus der KI-Hotline", "Anliegen aus der KI-Hotline bearbeiten"),
                            ("offene Rechnung", "Überfällige Rechnungen prüfen"),

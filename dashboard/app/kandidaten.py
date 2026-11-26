@@ -17,7 +17,7 @@ def _eur(x: float) -> str:
 
 
 def baue(san6: dict, outlook: dict, heute: date, kz: Kuerzel, ausgeblendet: set[str],
-         rezeptpruefung: list[dict] | None = None) -> list[dict]:
+         rezeptpruefung: list[dict] | None = None, abgleich: list[dict] | None = None) -> list[dict]:
     rezeptpruefung = rezeptpruefung or []
     out: list[dict] = []
 
@@ -94,10 +94,16 @@ def baue(san6: dict, outlook: dict, heute: date, kz: Kuerzel, ausgeblendet: set[
             # Diagnose geht NICHT an die KI, nur Produkt und Hinweis
             f"Neues Rezept von {k} für {r['produkt']} vor der Abrechnung: dieselbe Kombination aus Produkt und "
             f"Diagnosegruppe wurde zuletzt {r['anzahl']}× abgesetzt, meist wegen „{r['grund']}“.")
+    for g in abgleich or []:
+        k = kz.kunde(g["kunde"])
+        neu(f"abgleich:{g['auftrag']}", g["typ"], "san6 · Abgleich Abrechnung",
+            f"{g['kunde']} – {g['produkt']} ({g['kasse']}): {g['hinweis']}",
+            f"{g['typ']}: Auftrag {g['auftrag']} von {k}, {g['produkt']}, {g['kasse']}. {g['hinweis']}.")
     return out
 
 
-def kennzahlen(san6: dict, heute: date, zusatz: dict | None = None, rezeptpruefung: list | None = None) -> dict:
+def kennzahlen(san6: dict, heute: date, zusatz: dict | None = None, rezeptpruefung: list | None = None,
+               abgleich: list | None = None) -> dict:
     zusatz = zusatz or {}
     auftraege = san6.get("auftraege", [])
     kvs = [a for a in auftraege if a["status"] == "1"]
@@ -119,6 +125,8 @@ def kennzahlen(san6: dict, heute: date, zusatz: dict | None = None, rezeptpruefu
         "absetzungen_anzahl": len(abs_), "absetzungen_summe": round(sum(a["betrag"] for a in abs_), 2),
         "absetzungen_gruende": dict(sorted(gruende.items(), key=lambda x: -x[1])[:4]),
         "rezepte_geprueft": len(rezeptpruefung or []),
+        "abgleich_ohne_scan": sum(1 for g in abgleich or [] if g["typ"] == "Rezept fehlt im Archiv"),
+        "abgleich_nicht_abgerechnet": sum(1 for g in abgleich or [] if g["typ"] == "Noch nicht abgerechnet"),
         "telefonie": zusatz.get("telefonie"),
         "abwesend": san6.get("abwesend", []),
     }

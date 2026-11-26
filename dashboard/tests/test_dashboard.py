@@ -170,3 +170,11 @@ def test_neue_wuensche_und_datenschutz(mit_ki):
     for r in b["rezeptpruefung"]:
         assert r["diagnose"] not in gesendet          # Diagnosen gehen nie an die KI
     assert '"Krank"' not in gesendet and '"Urlaub"' not in gesendet   # Abwesenheitsgrund bleibt im Haus
+
+
+def test_abgleich_rezepte_abrechnungen(dienst):
+    b = dienst.abgleich()
+    typen = {g["typ"] for g in b["abgleich"]}
+    assert "Rezept fehlt im Archiv" in typen and "Noch nicht abgerechnet" in typen
+    assert b["kennzahlen"]["absetzungen_anzahl"] > 0
+    assert any(p["titel"].startswith("Rezept-Scans") for p in b["punkte"])

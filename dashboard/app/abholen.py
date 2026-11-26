@@ -50,7 +50,7 @@ def san6_daten(client: San6Client, cfg: Config, heute: date) -> dict:
         for t in alle_termine if (t.get("terminart") or "").lower() in ABWESEND]
 
     def auftraege():
-        r = client.get("AUFTRAEGE1", {"Status": "0167"})
+        r = client.get("AUFTRAEGE1", {"Status": "01267"})
         rows = []
         for e in find_all(r.root, "Auftrag"):
             datum = parse_date(child_text(e, "Datum")) or heute
@@ -73,6 +73,22 @@ def san6_daten(client: San6Client, cfg: Config, heute: date) -> dict:
                  "datum": _iso(parse_date(child_text(e, "Datum"))), "status": child_text(e, "Status"),
                  "summe": parse_num(child_text(e, "Summe"))} for e in find_all(r.root, "Abrechnung1")]
     out["abrechnungen"] = versuch("ABRECHNUNG1", abrechnungen)
+
+    def verordnungen():
+        """Welche Verordnungen stecken in den offenen Abrechnungen, und liegt jeweils ein Rezept im Archiv?"""
+        rows = []
+        for ab in out["abrechnungen"]:
+            if ab["status"] != "0":
+                continue
+            r = client.get("ABRECHNUNG2", {"Beleg": ab["beleg"]})
+            for ba in find_all(r.root, "BA"):
+                beleg = child_text(ba, "Beleg")
+                d = client.get("ABRECHNUNG3", {"Auftrag": beleg, "Dokumententyp": "R"})
+                rows.append({"abrechnung": ab["beleg"], "kasse": ab["kasse"],
+                             "auftrag": child_text(ba, "BelegOhnePruefziffer") or beleg[:6],
+                             "rezept_archiviert": bool(find_all(d.root, "Dokument"))})
+        return rows
+    out["verordnungen"] = versuch("ABRECHNUNG2/3", verordnungen)
 
     def rezepte():
         r = client.get("REZEPTANFORDERUNGEN")

@@ -26,7 +26,9 @@ wenn sie zusammenpassen – das ist dein eigentlicher Mehrwert.
 
 Neue Arten von Kandidaten: Kostenvoranschläge (KV), die seit über 3 Wochen bei der Kasse liegen; Aufträge in der 3. oder
 4. Mahnstufe; neue Rezepte mit Absetzungsrisiko (die Rezeptprüfung hat ähnliche Fälle gefunden, die die Kasse zuletzt
-abgesetzt hat – vor der Abrechnung korrigieren). In den Kennzahlen stehen außerdem Absetzungen der letzten 3 Wochen,
+abgesetzt hat – vor der Abrechnung korrigieren); Abgleich der Rezepte zu den Abrechnungen: Verordnungen in einer
+offenen Abrechnung ohne Rezept-Scan im Archiv (droht Absetzung) und gelieferte Rezepte, die seit Wochen in keiner
+Abrechnung stecken (Geld liegt liegen). In den Kennzahlen stehen außerdem Absetzungen der letzten 3 Wochen,
 offene Abrechnungen, Statistik der KI-Telefonie (Anrufe gestern, Zufriedenheit 1–5) und abwesende Mitarbeiter
 (berücksichtige sie, z. B. wenn Termine umgeplant oder Aufgaben verteilt werden müssen).
 

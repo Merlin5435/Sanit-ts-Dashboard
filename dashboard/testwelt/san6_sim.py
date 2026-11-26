@@ -103,6 +103,25 @@ def create_app(welt: Welt, passwort: str = "TEST") -> Flask:
                     + _t("Diagnose", x["diagnose"])
                     + "<Positionen><Artikel>" + _t("Bezeichnung", x["produkt"]) + _t("HMVNr", x["hmv"]) + _t("Offen", "1")
                     + "</Artikel></Positionen></Auftrag>" for x in rows) + "</Auftraege1>")
+            if f == "ABRECHNUNG2":
+                ab = next((x for x in w.abrechnungen if x["beleg"] == a.get("Beleg")), None)
+                if not ab:
+                    return _antwort(code="13", text="Abrechnung nicht wiedergefunden")
+                nach_nr = {x["nr"]: x for x in w.auftraege}
+                belege = "".join("<Beleg><BA>" + _t("Lfdnr", i + 1) + _t("Typ", "302") + _t("Beleg", f"{nr}-A1B2C3")
+                                 + _t("BelegOhnePruefziffer", nr) + _t("Referenz1", nr) + "</BA>"
+                                 + "<VS>" + _t("Nachname", nach_nr[nr]["kunde"][1].split()[-1]) + "</VS></Beleg>"
+                                 for i, nr in enumerate(ab["verordnungen"]) if nr in nach_nr)
+                return _antwort("<Abrechnung2>" + _t("Rechnungsnummer", ab["beleg"][:6]) + _t("APIStatus", "1")
+                                + "<Belege>" + belege + "</Belege></Abrechnung2>")
+            if f == "ABRECHNUNG3":
+                nr = a.get("Auftrag", "")[:6]
+                x = next((x for x in w.auftraege if x["nr"] == nr), None)
+                if not x:
+                    return _antwort(code="41", text="Auftragsnummer fehlt")
+                doks = "" if not x["rezept_scan"] else ("<Dokument>" + _t("Archivnummer", f"{int(nr):08d}") + _t("Datum", d(x["rezepteingang"] or x["datum"]))
+                                                       + _t("Typ", "R") + _t("Bezeichnung", "Rezept") + _t("Dateiname", "Rezept.pdf") + "</Dokument>")
+                return _antwort("<Abrechnung3><Dokumente>" + doks + "</Dokumente></Abrechnung3>")
             if f == "ABRECHNUNG1":
                 return _antwort("".join(
                     "<Abrechnung1>" + _t("Beleg", x["beleg"]) + _t("IKNummer", x["ik"]) + _t("IKKostentraeger", x["kasse"])
