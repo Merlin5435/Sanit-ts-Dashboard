@@ -81,6 +81,9 @@ class Dienst:
 
             briefing = self._zusammenbauen(ergebnis, kands, kz, heute, kzahlen, termine, ol, ohne_ki)
             briefing["fehler"] = s6["fehler"] + ol["fehler"] + zu["fehler"] + ([ki_fehler] if ki_fehler else [])
+            briefing["kv_alt"] = sorted([{"kunde": a["kunde"], "kasse": a["kasse"], "produkt": a["produkt"], "tage": a["tage"]}
+                                         for a in s6.get("auftraege", []) if a["status"] == "1" and a["tage"] > 21],
+                                        key=lambda x: -x["tage"])
             briefing["orgas"] = [{"thema": o["thema"], "datum": o["datum"], "text": o["text"]} for o in s6.get("orgas_chef", [])]
             briefing["rezeptpruefung"] = [{"kunde": r["kunde"], "produkt": r["produkt"], "diagnose": r["diagnose"],
                                            "hinweis": r["hinweis"], "kasse": r["kasse"]} for r in rp]

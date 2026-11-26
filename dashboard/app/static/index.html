@@ -141,10 +141,6 @@ textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:
   <div id="hinweise"></div>
 
   <div class="raster" id="raster">
-    <section class="tile kpi" data-id="umsatz"><div class="thead"><h3>Umsatz Monat bis gestern</h3><span class="pill" id="k-umsatz-p"></span></div><div class="tbody"><div class="big num" id="k-umsatz"></div></div></section>
-    <section class="tile kpi" data-id="or"><div class="thead"><h3>Offene Patientenrechnungen</h3><span class="pill bad" id="k-or-p"></span></div><div class="tbody"><div class="big num" id="k-or"></div></div></section>
-    <section class="tile kpi" data-id="termzahl"><div class="thead"><h3>Termine heute</h3><span class="pill">alle Mitarbeiter</span></div><div class="tbody"><div class="big num" id="k-termine"></div></div></section>
-    <section class="tile kpi" data-id="rezepte"><div class="thead"><h3>Fehlende Rezepte</h3><span class="pill warn" id="k-rez-p"></span></div><div class="tbody"><div class="big num" id="k-rez"></div></div></section>
 
     <section class="tile wichtig" data-id="wichtig">
       <div class="thead"><h3>Am wichtigsten heute</h3><small id="geprueft"></small></div>
@@ -163,7 +159,7 @@ textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:
         <form class="ask" id="ask"><input id="frage" placeholder="Frage stellen …" aria-label="Frage an den Assistenten" autocomplete="off"><button aria-label="Senden">↑</button></form>
       </div>
     </section>
-    <section class="tile" data-id="termine"><div class="thead"><h3>Termine heute</h3><small>Chef</small></div><div class="tbody"><ul class="rows" id="termine"></ul></div></section>
+    <section class="tile" data-id="termine"><div class="thead"><h3>Termine heute</h3><small>Outlook + san6</small></div><div class="tbody"><ul class="rows" id="termine"></ul></div></section>
     <section class="tile" data-id="postfach"><div class="thead"><h3>Postfach</h3><small id="pf-anz"></small></div><div class="tbody"><ul class="rows" id="postfach"></ul></div></section>
     <section class="tile" data-id="hotline"><div class="thead"><h3>Hotline-Anliegen offen</h3><small>aus san6-Orgas</small></div><div class="tbody"><ul class="rows" id="hotline"></ul></div></section>
     <section class="tile" data-id="opdetail"><div class="thead"><h3>Offene Patientenrechnungen</h3></div><div class="tbody">
@@ -171,15 +167,14 @@ textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:
       <div class="legend"><span><i style="background:var(--good)"></i>nicht fällig</span><span><i style="background:var(--warn)"></i>überfällig</span><span><i style="background:var(--bad)"></i>gemahnt</span></div>
       <ul class="rows" id="or-rows" style="margin-top:6px"></ul></div></section>
 
+    <section class="tile" data-id="kvalt"><div class="thead"><h3>Eingereichte KVs älter als 3 Wochen</h3><small id="kvalt-anz"></small></div><div class="tbody"><ul class="rows" id="kvalt"></ul></div></section>
     <section class="tile kpi" data-id="kv"><div class="thead"><h3>Offene KVs</h3><span class="pill warn" id="k-kv-p"></span></div><div class="tbody"><div class="big num" id="k-kv"></div></div></section>
     <section class="tile kpi" data-id="auftraege"><div class="thead"><h3>Offene Aufträge</h3><span class="pill" id="k-auf-p"></span></div><div class="tbody"><div class="big num" id="k-auf"></div></div></section>
     <section class="tile kpi" data-id="mahnung"><div class="thead"><h3>Mahnungen Stufe 3 + 4</h3><span class="pill bad" id="k-mahn-p"></span></div><div class="tbody"><div class="big num" id="k-mahn"></div></div></section>
     <section class="tile kpi" data-id="abwesend"><div class="thead"><h3>Abwesend heute</h3></div><div class="tbody"><div id="k-abw" style="font-size:13px"></div></div></section>
     <section class="tile" data-id="pruefung"><div class="thead"><h3>Rezeptprüfung vor der Abrechnung</h3><small>gegen Absetzungen der letzten 3 Wochen</small></div><div class="tbody"><ul class="rows" id="pruefung"></ul></div></section>
-    <section class="tile" data-id="absetzungen"><div class="thead"><h3>Absetzungen (3 Wochen)</h3><span class="pill bad" id="k-abs-p"></span></div><div class="tbody"><div class="big num" id="k-abs"></div><ul class="rows" id="abs-gruende" style="margin-top:4px"></ul></div></section>
     <section class="tile" data-id="telefonie"><div class="thead"><h3>KI-Telefonie gestern</h3><small title="Quelle: Hotline-Anbieter – in der Testversion simuliert">Anbieter</small></div><div class="tbody"><ul class="rows" id="telefonie"></ul></div></section>
     <section class="tile" data-id="abrechnung"><div class="thead"><h3>Offene Abrechnungen</h3><small id="abr-sum"></small></div><div class="tbody"><ul class="rows" id="abrechnung"></ul></div></section>
-    <section class="tile" data-id="orgas"><div class="thead"><h3>Orgas an mich</h3><small id="orgas-anz"></small></div><div class="tbody"><ul class="rows" id="orgas"></ul></div></section>
   </div>
 </div>
 
@@ -211,16 +206,15 @@ themeKnopf();
 
 /* ---------------------------------------------------------------- Kacheln: verschieben und Größe ändern */
 const STANDARD = [
-  ["umsatz", 3, 1], ["or", 3, 1], ["termzahl", 3, 1], ["rezepte", 3, 1],
+  ["termine", 6, 3], ["postfach", 6, 3],
+  ["wichtig", 8, 6], ["assistent", 4, 3], ["hotline", 4, 3],
   ["kv", 3, 1], ["auftraege", 3, 1], ["mahnung", 3, 1], ["abwesend", 3, 1],
-  ["wichtig", 8, 6], ["assistent", 4, 4], ["termine", 4, 2],
-  ["pruefung", 6, 3], ["absetzungen", 3, 3], ["telefonie", 3, 3],
-  ["postfach", 4, 3], ["hotline", 4, 3], ["opdetail", 4, 3],
-  ["orgas", 6, 2], ["abrechnung", 6, 2],
+  ["pruefung", 6, 3], ["kvalt", 6, 3],
+  ["opdetail", 4, 3], ["abrechnung", 4, 3], ["telefonie", 4, 3],
 ];
-const MIN = {umsatz: [2, 1], or: [2, 1], termzahl: [2, 1], rezepte: [2, 1], kv: [2, 1], auftraege: [2, 1], mahnung: [2, 1], abwesend: [2, 1], wichtig: [4, 3], assistent: [3, 3]};
+const MIN = {kv: [2, 1], auftraege: [2, 1], mahnung: [2, 1], abwesend: [2, 1], wichtig: [4, 3], assistent: [3, 2]};
 const raster = $("raster");
-let layout = lese("dash-layout-v2");
+let layout = lese("dash-layout-v3");
 if (!Array.isArray(layout) || layout.length !== STANDARD.length) layout = STANDARD.map(x => [...x]);
 
 function anordnen() {
@@ -231,7 +225,7 @@ function anordnen() {
     raster.append(t);
   }
 }
-function speichern() { schreibe("dash-layout-v2", layout); }
+function speichern() { schreibe("dash-layout-v3", layout); }
 const eintrag = (id) => layout.find(x => x[0] === id);
 
 for (const t of raster.children) t.append(h("span", {class: "griff", title: "Größe ändern"}));
@@ -321,13 +315,6 @@ function zeichnen() {
   assistentStart();
   $("termine").replaceChildren(...(B.termine.length ? B.termine.map(t => h("li", {}, h("span", {}, t.zeit + " " + t.titel), h("small", {}, t.quelle))) : [h("li", {class: "leer"}, "Keine Termine")]));
   const k = B.kennzahlen;
-  $("k-umsatz").textContent = eur(k.umsatz_monat);
-  $("k-umsatz-p").textContent = k.umsatz_veraenderung == null ? "–" : (k.umsatz_veraenderung > 0 ? "+" : "") + k.umsatz_veraenderung.toLocaleString("de-DE") + " % VJ";
-  $("k-or").textContent = eur(k.offene_rechnungen);
-  $("k-or-p").textContent = k.anzahl_gemahnt + " gemahnt";
-  $("k-termine").textContent = k.termine_heute;
-  $("k-rez").textContent = k.rezepte_fehlend;
-  $("k-rez-p").textContent = k.rezepte_ueber_14 + " > 14 Tage";
   $("pf-anz").textContent = B.postfach.length + " brauchen Antwort";
   $("postfach").replaceChildren(...(B.postfach.length ? B.postfach.map(m => h("li", {}, h("span", {}, m.von + " – " + m.betreff), h("button", {class: "link", onclick: () => entwurf(m.id, m.betreff)}, "Entwurf"))) : [h("li", {class: "leer"}, "Nichts offen")]));
   const ho = Object.entries(k.hotline_offen);
@@ -341,6 +328,9 @@ function zeichnen() {
   // --- Wünsche des Chefs
   const leer = (t) => [h("li", {class: "leer"}, t)];
   const zeile = (a, b, cls) => h("li", {}, h("span", {}, a), h("span", {class: "num " + (cls || "")}, b));
+  const kva = B.kv_alt || [];
+  $("kvalt-anz").textContent = kva.length + " Stück";
+  $("kvalt").replaceChildren(...(kva.length ? kva.map(a => h("li", {}, h("span", {}, h("b", {}, a.kunde), ` – ${a.produkt} `, h("small", {}, `(${a.kasse})`)), h("span", {class: "num"}, `${a.tage} Tage`))) : leer("Keine")));
   $("k-kv").textContent = k.kv_offen; $("k-kv-p").textContent = k.kv_ueber_21 + " > 3 Wochen";
   $("k-auf").textContent = k.auftraege_offen; $("k-auf-p").textContent = eur(k.auftraege_summe);
   $("k-mahn").textContent = k.mahnung_3 + k.mahnung_4; $("k-mahn-p").textContent = eur(k.mahnung_summe);
@@ -348,17 +338,12 @@ function zeichnen() {
   $("pruefung").replaceChildren(...((B.rezeptpruefung || []).length ? B.rezeptpruefung.map(r => h("li", {style: "display:block"},
       h("div", {}, h("b", {}, r.kunde), ` – ${r.produkt} `, h("small", {}, `(${r.diagnose}, ${r.kasse})`)),
       h("div", {}, h("span", {class: "pill warn"}, "Risiko"), " ", h("small", {}, r.hinweis)))) : leer("Keine Auffälligkeiten bei den neuen Rezepten")));
-  $("k-abs").textContent = k.absetzungen_anzahl; $("k-abs-p").textContent = eur(k.absetzungen_summe);
-  $("abs-gruende").replaceChildren(...Object.entries(k.absetzungen_gruende || {}).map(([g, n]) => zeile(g, n + "×")));
   const t = k.telefonie;
   $("telefonie").replaceChildren(...(t ? [zeile("Anrufe", t.anrufe), zeile("Direkt gelöst", `${t.geloest} (${Math.round(100 * t.geloest / t.anrufe)} %)`),
       zeile("An Team weitergeleitet", t.weitergeleitet), zeile("Zufriedenheit", t.zufriedenheit.toLocaleString("de-DE") + " / 5", t.zufriedenheit < 4 ? "" : ""),
       zeile("Unzufrieden", t.unzufrieden, t.unzufrieden ? "" : ""), zeile("Ø Gesprächsdauer", t.dauer_min.toLocaleString("de-DE") + " min")] : leer("Keine Daten vom Anbieter")));
   $("abr-sum").textContent = eur(k.abrechnungen_summe);
   $("abrechnung").replaceChildren(...(k.abrechnungen.length ? k.abrechnungen.map(a => zeile(`${a.kasse} · ${new Date(a.datum + "T12:00").toLocaleDateString("de-DE")}`, eur(a.summe))) : leer("Keine offenen Abrechnungen")));
-  const og = B.orgas || [];
-  $("orgas-anz").textContent = og.length + " offen";
-  $("orgas").replaceChildren(...(og.length ? og.map(o => h("li", {}, h("span", {}, h("b", {}, o.thema), " ", h("small", {}, o.text)))) : leer("Keine offenen Orgas")));
 }
 
 function punkt(p, n) {
