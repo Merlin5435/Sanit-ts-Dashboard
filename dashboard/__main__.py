@@ -62,14 +62,25 @@ def main() -> None:
         for f in b["fehler"]:
             print("Fehler:", f)
         return
+    url = f"http://127.0.0.1:{cfg.port}"
+    # Läuft das Dashboard schon (z. B. in einem anderen Fenster)? Dann nur den Browser öffnen.
+    import socket
+    with socket.socket() as sock:
+        if sock.connect_ex(("127.0.0.1", cfg.port)) == 0:
+            print(f"\n  Das Dashboard läuft bereits: {url}\n  Der Browser wird geöffnet. Dieses Fenster kann geschlossen werden.\n")
+            if "--kein-browser" not in args:
+                webbrowser.open(url)
+            return
     # Testversion: jeder Start beginnt mit einer frischen Testwelt
     db = cfg.db_pfad
     if os.path.exists(db):
-        os.remove(db)
+        try:
+            os.remove(db)
+        except OSError:
+            print("  Hinweis: Alte Testdaten sind noch gesperrt, sie werden weiterverwendet.")
     dienst = baue_dienst(cfg)
     dienst.starte_zeitplan()
     app = create_app(dienst)
-    url = f"http://127.0.0.1:{cfg.port}"
     print(f"\n  KI-Dashboard (Testversion) läuft: {url}")
     print("  KI: " + ("verbunden (" + cfg.modell + ")" if cfg.ki_aktiv else "NICHT verbunden – ANTHROPIC_API_KEY in dashboard/.env eintragen"))
     print("  Beenden mit Strg+C\n")
