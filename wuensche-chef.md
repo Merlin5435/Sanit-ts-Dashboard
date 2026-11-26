@@ -24,3 +24,13 @@ Bereits im Entwurf und abgehakt: Termine heute, Postfach, Hotline-Anliegen, offe
 | Mitarbeiter im Urlaub | unklar – evtl. über Termine/Timer |
 | Absetzungen der letzten 3 Wochen | nein – API nimmt sie nur an, gibt sie nicht aus |
 | Prüfung der neuen Rezepte | siehe Seite 2 der Notizen; Diagnosen an KI = Datenschutz klären |
+
+## Antworten (Stand 26.11.2026)
+- Hr. Koopman ist der Chef (san6-Admin, Microsoft 365).
+- Claude-Konto auf die Firma: ja
+- Datenschutzbeauftragter: entfällt, Hr. Koopman prüft selbst
+- Autostart auf seinem PC: ja
+- Postfach/Kalender: nur seins
+- Einverständnis Mails lesen: ja
+- Mail-System: Microsoft 365
+- Server: evtl. Server in Lgd, wird mit der IT geklärt (muss abgeschirmt werden)
